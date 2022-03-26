@@ -1,0 +1,14 @@
+{
+  "AzureCognitiveServices": {
+    "SubscriptionKey": "<required>",
+    "Region": "<optional>"
+  },
+  "YandexCloud": {
+    "APIKey": "<required>"
+  },
+  "GoogleCloud": {
+    "ProjectId": "<required>",
+    "PrivateKey": "<required>",
+    "ClientEmail": "<required>"
+  }
+}
