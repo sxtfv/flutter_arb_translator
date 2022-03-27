@@ -7,6 +7,7 @@ import '../../utils/extensions.dart';
 
 import '../../models/arb_content.dart';
 
+/// Reads ARB file and generates [ARBContent] based on it's content
 class ARBParser {
   final Logger logger;
   static const _pluralToken = 'plural,';
@@ -16,6 +17,7 @@ class ARBParser {
     required this.logger,
   });
 
+  /// [path] - absolute path to the .arb file
   ARBContent parse(String path) {
     logger.info('Parse file $path');
 
@@ -117,6 +119,7 @@ class ARBParser {
     );
   }
 
+  /// Reads item text, finds all plurals in it and generates a list
   List<ARBItemSpecialData> _parsePlurals(final String text) {
     if (!_containsPluralToken(text)) {
       return [];
@@ -135,6 +138,7 @@ class ARBParser {
     return parts.map((x) => ARBItemSpecialData.parseFromString(x)).toList();
   }
 
+  /// Reads item text, finds all selects in it and generates a list
   List<ARBItemSpecialData> _parseSelects(final String text) {
     if (!_containsSelectToken(text)) {
       return [];

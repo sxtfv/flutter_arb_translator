@@ -5,6 +5,7 @@ import '../log/logger.dart';
 
 import '../../models/arb_content.dart';
 
+/// Responsible for writing [ARBContent] to a given file
 class ARBWriter {
   final ARBContent content;
   final Logger logger;
@@ -14,6 +15,7 @@ class ARBWriter {
     required this.logger,
   });
 
+  /// [filePath] - absolute path to which [content] should be written to
   void writeToFile(String filePath) {
     logger.info('Write arb content fo file $filePath');
     final json = _encodeToJson();

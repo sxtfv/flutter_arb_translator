@@ -6,11 +6,13 @@ enum LogLevel {
   production,
 }
 
+/// Logs to stdout based on [LogLevel]
 class Logger<T> {
   final LogLevel logLevel;
 
   const Logger(this.logLevel);
 
+  /// Logs to stdout with [INF] log level
   void info(String message) {
     if (logLevel == LogLevel.none) {
       return;
@@ -23,6 +25,7 @@ class Logger<T> {
     stdout.writeln('${_getDateStr()} [$T] INF: $message');
   }
 
+  /// Logs to stdout with [WRN] log level
   void warning(String message) {
     if (logLevel == LogLevel.none) {
       return;
@@ -35,10 +38,12 @@ class Logger<T> {
     stdout.writeln('${_getDateStr()} [$T] WRN: $message');
   }
 
+  /// Logs to stdout with [TRC] log level
   void trace(String message) {
     stdout.writeln('${_getDateStr()} [$T] TRC: $message');
   }
 
+  /// Logs to stdout with [ERR] log level
   void error(String message, Object error) {
     if (logLevel == LogLevel.none) {
       return;

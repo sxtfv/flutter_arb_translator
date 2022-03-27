@@ -6,17 +6,27 @@ import '../../models/api_result.dart';
 
 import '../log/logger.dart';
 
+/// Wrapper for http requests
 class HttpClient {
   final String baseUrl;
   final Map<String, String>? authorizationHeaders;
   final Logger? logger;
 
+  /// [baseUrl] - a root to which all request will be made
+  /// [authorizationHeaders] - collection of headers which will be applied to
+  /// all requests
   const HttpClient({
     required this.baseUrl,
     this.logger,
     this.authorizationHeaders,
   });
 
+  /// Executes HTTP GET request
+  /// [path] - relative to [baseUrl] path
+  /// [decoder] - function which will be called if http request was successful
+  /// to convert [http.Response] to [T]
+  /// [parameters] - collection of query parameters
+  /// [headers] - collection of headers which should be applied to this request
   Future<ApiResult<T>> get<T>({
     required String path,
     required T Function(http.Response) decoder,
@@ -47,6 +57,13 @@ class HttpClient {
     }
   }
 
+  /// Executes HTTP POST request
+  /// [path] - relative to [baseUrl] path
+  /// [decoder] - function which will be called if http request was successful
+  /// to convert [http.Response] to [T]
+  /// [parameters] - collection of query parameters
+  /// [headers] - collection of headers which should be applied to this request
+  /// [body] - http request body which will be encode to JSON
   Future<ApiResult<T>> post<T>({
     required String path,
     required T Function(http.Response) decoder,

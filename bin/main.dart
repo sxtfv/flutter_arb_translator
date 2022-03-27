@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_arb_translator/models/translation_applying.dart';
 import 'package:path/path.dart' as path;
 import 'package:args/args.dart' as args;
 
@@ -11,6 +10,8 @@ import 'package:flutter_arb_translator/service/translation/service_factory.dart'
 import 'package:flutter_arb_translator/service/arb/translator.dart';
 import 'package:flutter_arb_translator/service/log/logger.dart';
 import 'package:flutter_arb_translator/service/arb/translation_applier.dart';
+import 'package:flutter_arb_translator/models/translation_applying.dart';
+import 'package:flutter_arb_translator/models/arb_content.dart';
 import 'package:flutter_arb_translator/utils/extensions.dart';
 
 void main(List<String> arguments) async {
@@ -81,7 +82,14 @@ void main(List<String> arguments) async {
     logger: Logger<ARBParser>(logLevel),
   );
 
-  final arb = arbParser.parse(sourceArbPath);
+  ARBContent arb;
+  try {
+    arb = arbParser.parse(sourceArbPath);
+  } on Exception catch (ex) {
+    Logger(logLevel).error('Failed to read arb file', ex);
+    stdout.writeln('\x1B[33mFailed to read ARB file $sourceArbPath\x1B[0m');
+    return;
+  }
 
   TranslationServiceType serviceType;
   switch (serviceName) {

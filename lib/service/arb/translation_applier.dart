@@ -10,6 +10,7 @@ import '../../utils/extensions.dart';
 
 import '../../service/log/logger.dart';
 
+/// Responsible for applying translated items and building result [ARBContent]'s
 class ARBTranslationApplier {
   final ARBContent original;
   final LanguageCode originalLocale;
@@ -23,6 +24,12 @@ class ARBTranslationApplier {
   final Map<LanguageCode, List<ARBItem>> _resultItems;
   final Map<LanguageCode, List<ARBItemKey>> _visitedKeys;
 
+  /// [original] - [ARBContent] as a translation source
+  /// [originalLocale] - [LanguageCode] which was sourceLanguage of translation
+  /// [translationTargets] - list of languages to which [original] was translated
+  /// [translations] - map with [LanguageCode] as key and [ArbContentTranslated]
+  /// as value
+  /// [originals] - map of original ARB files of [translations] if they exist
   ARBTranslationApplier({
     required this.original,
     required this.originalLocale,
@@ -40,6 +47,16 @@ class ARBTranslationApplier {
 
   ARBItem get currentItem => original.items[_currentItemIndex];
 
+  /// Moves applier to next [ARBItem]
+  void moveNext() {
+    if (!canMoveNext) {
+      return;
+    }
+
+    _currentItemIndex++;
+  }
+
+  /// Prints current item changes to console
   void stdoutCurrentChange() {
     final currentTranslations = _getCurrentTranslations();
     final allUnmodified = currentTranslations.entries
@@ -108,6 +125,7 @@ class ARBTranslationApplier {
     stdout.writeln(msg.toString());
   }
 
+  /// Applies, discards changes to current item
   void processCurrentChange(TranslationApplying applying) {
     switch (applying.type) {
       case TranslationApplyingType.applyAll:
@@ -123,6 +141,109 @@ class ARBTranslationApplier {
       case TranslationApplyingType.cancel:
         return;
     }
+  }
+
+  /// If application is running in interactive mode this method
+  /// will print available interactive options
+  void requestApplyCurrentTranslationConfirmation() {
+    stdout.writeln('Would you like to apply this translation? [Y/N/S/C]');
+    stdout.writeln('[Y] - yes, apply all');
+    stdout.writeln('[N] - no, discard all (default)');
+    stdout.writeln('[S] - select translations to apply. Example: S es,it');
+    stdout.writeln('[C] - cancel all, all changes will be discarded and files '
+        'will be not modified');
+  }
+
+  /// If application is running in interactive mode this method
+  /// will read and parse selected by user type of applying
+  TranslationApplying readTranslationApplyFromConsole() {
+    final line = stdin.readLineSync(encoding: Encoding.getByName('utf-8')!);
+
+    if (line == null || line.isEmpty) {
+      logger.warning('Line is empty. Will discard current translation '
+          '${currentItem.key}');
+
+      return TranslationApplying(
+        TranslationApplyingType.discardAll,
+      );
+    }
+
+    final firstChar = line[0].toLowerCase();
+
+    switch (firstChar) {
+      case 'y':
+        return TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+      case 'n':
+        return TranslationApplying(
+          TranslationApplyingType.discardAll,
+        );
+      case 's':
+        final selectedLanguagesStr = line.replaceFirst(firstChar, '').trim();
+        final selectedLanguages =
+            selectedLanguagesStr.split(',').map((x) => x.trim()).toList();
+        if (selectedLanguages.isEmpty) {
+          logger.warning('Select mode but language list is empty $line '
+              '${currentItem.key}');
+        }
+        return TranslationApplying(
+          TranslationApplyingType.selectTranslations,
+          selectedLanguages: selectedLanguages,
+        );
+      case 'c':
+        return TranslationApplying(
+          TranslationApplyingType.cancel,
+        );
+      default:
+        logger.warning('Unsupported apply mode $line');
+        return TranslationApplying(
+          TranslationApplyingType.discardAll,
+        );
+    }
+  }
+
+  /// Builds results of applying/discarding changes in all items
+  Map<String, ARBContent> getResults() {
+    for (final target in translationTargets) {
+      final originalARB = originals[target];
+      if (originalARB == null) {
+        continue;
+      }
+
+      for (final item in originalARB.items) {
+        if (!_visitedKeys[target]!.contains(item.key)) {
+          _resultItems[target]!.add(ARBItem(
+            number: item.number,
+            key: item.key,
+            value: item.value,
+            annotation: item.annotation,
+            plurals: item.plurals,
+            selects: item.selects,
+          ));
+          _visitedKeys[target]!.add(item.key);
+        }
+      }
+    }
+
+    Map<String, ARBContent> result = {};
+    for (final target in translationTargets) {
+      final items = _resultItems[target]!;
+      final translatedARB = translations.lookup(target);
+      final originalARB = originals.lookup(target);
+      final lineBreaks = translatedARB == null
+          ? originalARB == null
+              ? original.lineBreaks
+              : originalARB.lineBreaks
+          : translatedARB.lineBreaks;
+      result[target] = ARBContent(
+        items,
+        lineBreaks: lineBreaks,
+        locale: original.locale == null ? null : translatedARB?.locale,
+      );
+    }
+
+    return result;
   }
 
   void _applyCurrentChangeFull() {
@@ -212,112 +333,6 @@ class ARBTranslationApplier {
         ));
       }
     }
-  }
-
-  void requestApplyCurrentTranslationConfirmation() {
-    stdout.writeln('Would you like to apply this translation? [Y/N/S/C]');
-    stdout.writeln('[Y] - yes, apply all');
-    stdout.writeln('[N] - no, discard all (default)');
-    stdout.writeln('[S] - select translations to apply. Example: S es,it');
-    stdout.writeln('[C] - cancel all, all changes will be discarded and files '
-        'will be not modified');
-  }
-
-  TranslationApplying readTranslationApplyFromConsole() {
-    final line = stdin.readLineSync(encoding: Encoding.getByName('utf-8')!);
-
-    if (line == null || line.isEmpty) {
-      logger.warning('Line is empty. Will discard current translation '
-          '${currentItem.key}');
-
-      return TranslationApplying(
-        TranslationApplyingType.discardAll,
-      );
-    }
-
-    final firstChar = line[0].toLowerCase();
-
-    switch (firstChar) {
-      case 'y':
-        return TranslationApplying(
-          TranslationApplyingType.applyAll,
-        );
-      case 'n':
-        return TranslationApplying(
-          TranslationApplyingType.discardAll,
-        );
-      case 's':
-        final selectedLanguagesStr = line.replaceFirst(firstChar, '').trim();
-        final selectedLanguages =
-            selectedLanguagesStr.split(',').map((x) => x.trim()).toList();
-        if (selectedLanguages.isEmpty) {
-          logger.warning('Select mode but language list is empty $line '
-              '${currentItem.key}');
-        }
-        return TranslationApplying(
-          TranslationApplyingType.selectTranslations,
-          selectedLanguages: selectedLanguages,
-        );
-      case 'c':
-        return TranslationApplying(
-          TranslationApplyingType.cancel,
-        );
-      default:
-        logger.warning('Unsupported apply mode $line');
-        return TranslationApplying(
-          TranslationApplyingType.discardAll,
-        );
-    }
-  }
-
-  void moveNext() {
-    if (!canMoveNext) {
-      return;
-    }
-
-    _currentItemIndex++;
-  }
-
-  Map<String, ARBContent> getResults() {
-    for (final target in translationTargets) {
-      final originalARB = originals[target];
-      if (originalARB == null) {
-        continue;
-      }
-
-      for (final item in originalARB.items) {
-        if (!_visitedKeys[target]!.contains(item.key)) {
-          _resultItems[target]!.add(ARBItem(
-            number: item.number,
-            key: item.key,
-            value: item.value,
-            annotation: item.annotation,
-            plurals: item.plurals,
-            selects: item.selects,
-          ));
-          _visitedKeys[target]!.add(item.key);
-        }
-      }
-    }
-
-    Map<String, ARBContent> result = {};
-    for (final target in translationTargets) {
-      final items = _resultItems[target]!;
-      final translatedARB = translations.lookup(target);
-      final originalARB = originals.lookup(target);
-      final lineBreaks = translatedARB == null
-          ? originalARB == null
-              ? original.lineBreaks
-              : originalARB.lineBreaks
-          : translatedARB.lineBreaks;
-      result[target] = ARBContent(
-        items,
-        lineBreaks: lineBreaks,
-        locale: original.locale == null ? null : translatedARB?.locale,
-      );
-    }
-
-    return result;
   }
 
   Map<String, ARBItemTranslated?> _getCurrentTranslations() {

@@ -9,7 +9,8 @@ import '../../utils/extensions.dart';
 import '../../models/translation.dart';
 import '../../models/types.dart';
 
-/// Documentation:
+/// Translator based on Azure Cognitive Services API
+/// Azure Cognitive Services API Documentation:
 /// https://docs.microsoft.com/en-us/azure/cognitive-services/translator/quickstart-translator?tabs=csharp
 class AzureCognitiveServicesTranslationService
     extends AbstractTranslationService
@@ -20,10 +21,14 @@ class AzureCognitiveServicesTranslationService
   final HttpClient _httpClient;
   final Logger logger;
 
+  /// [subscriptionKey] - Azure Subscription Key, read mode here:
+  /// https://docs.microsoft.com/en-us/azure/cognitive-services/authentication?tabs=powershell
+  /// [region] - Azure Subscription Region, read more here:
+  /// https://docs.microsoft.com/en-us/azure/cognitive-services/authentication?tabs=powershell
   AzureCognitiveServicesTranslationService({
     required String subscriptionKey,
-    required this.logger,
     String? region,
+    required this.logger,
   }) : _httpClient = HttpClient(
           baseUrl: 'https://api.cognitive.microsofttranslator.com',
           authorizationHeaders: {
@@ -33,6 +38,10 @@ class AzureCognitiveServicesTranslationService
           logger: logger,
         );
 
+  /// Translates given text to specified language
+  /// [source] - text which should be translated
+  /// [sourceLanguage] - the language in which [source] was given
+  /// [target] - language to which [source] should be translated
   @override
   Future<String> translate(
     String source,
@@ -69,6 +78,10 @@ class AzureCognitiveServicesTranslationService
     return result;
   }
 
+  /// Translates given text to specified languages
+  /// [source] - text which should be translated
+  /// [sourceLanguage] - the language in which [source] was given
+  /// [targets] - list of languages to which [source] should be translated
   @override
   Future<Translation> translateToTargetsList(
     String source,
@@ -113,6 +126,10 @@ class AzureCognitiveServicesTranslationService
     );
   }
 
+  /// Translates given texts to specified language
+  /// [sources] - list of text which should be translated
+  /// [sourceLanguage] - the language in which [sources] were given
+  /// [target] - language to which [sources] should be translated
   @override
   Future<List<String>> translateBulkToSingleTarget(
     List<String> sources,
@@ -144,6 +161,10 @@ class AzureCognitiveServicesTranslationService
     return apiResult.valueUnsafe.map((x) => x.translations.first.text).toList();
   }
 
+  /// Translates given texts to specified languages
+  /// [sources] - list of texts which should be translated
+  /// [sourceLanguage] - the language in which [sources] were given
+  /// [targets] - list of languages to which [sources] should be translated
   @override
   Future<List<Translation>> translateBulk(
     List<String> sources,

@@ -9,7 +9,8 @@ import '../log/logger.dart';
 
 import '../../models/types.dart';
 
-/// Documentation:
+/// Translator based on Google Cloud translation API
+/// Google Cloud translation API Documentation:
 /// https://cloud.google.com/translate/docs/reference/rest/v3/projects/translateText
 class GoogleCloudTranslationService extends AbstractTranslationService
     with SupportsBulkTranslationToSingleTarget {
@@ -17,6 +18,10 @@ class GoogleCloudTranslationService extends AbstractTranslationService
   final Logger logger;
   final HttpClient _httpClient;
 
+  /// For more details on arguments see Google Service Accounts documentation:
+  /// https://cloud.google.com/iam/docs/service-accounts
+  /// [projectId] - "project_id" field of exported Private Key in JSON
+  /// [accessToken] - Service Account access token
   GoogleCloudTranslationService({
     required this.projectId,
     required String accessToken,
@@ -29,6 +34,10 @@ class GoogleCloudTranslationService extends AbstractTranslationService
           logger: logger,
         );
 
+  /// Translates given text to specified language
+  /// [source] - text which should be translated
+  /// [sourceLanguage] - the language in which [source] was given
+  /// [target] - language to which [source] should be translated
   @override
   Future<String> translate(
     String source,
@@ -57,6 +66,10 @@ class GoogleCloudTranslationService extends AbstractTranslationService
     return apiResult.valueUnsafe.translations.first.translatedText;
   }
 
+  /// Translates given texts to specified language
+  /// [sources] - list of text which should be translated
+  /// [sourceLanguage] - the language in which [sources] were given
+  /// [target] - language to which [sources] should be translated
   @override
   Future<List<String>> translateBulkToSingleTarget(
     List<String> sources,
@@ -90,6 +103,10 @@ class GoogleCloudTranslationService extends AbstractTranslationService
       _GoogleCloudTranslation.fromJson(jsonDecode(json));
 }
 
+/// Creates JWT based on Service Account credentials
+/// and obtains access token
+/// see here on building authorization documentation:
+/// https://cloud.google.com/iot/docs/how-tos/credentials/jwts
 class GoogleCloudAuthorizationProvider {
   final String email;
   final String privateKey;
@@ -97,6 +114,9 @@ class GoogleCloudAuthorizationProvider {
   final Logger logger;
   final HttpClient _httpClient;
 
+  /// [email] - Service account email
+  /// [privateKey] - exported to JSON service account private key data
+  /// [scopes] - scopes which will be used with generated access token
   GoogleCloudAuthorizationProvider({
     required this.email,
     required this.privateKey,
@@ -107,6 +127,7 @@ class GoogleCloudAuthorizationProvider {
           logger: logger,
         );
 
+  /// Builds JWT and exchanges it with service account access token
   Future<String> getAccessToken() async {
     final jwt = _createJWT();
 

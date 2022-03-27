@@ -222,6 +222,9 @@ abstract class ARBTranslator {
   final LanguageCode sourceLanguage;
   final Logger logger;
 
+  /// [translationSvc] - API service which will be used for translation of items
+  /// [arb] - the file content which should be translated
+  /// [sourceLanguage] - the language of [arb]
   ARBTranslator({
     required this.translationSvc,
     required this.arb,
@@ -229,6 +232,9 @@ abstract class ARBTranslator {
     required this.logger,
   });
 
+  /// [translationSvc] - API service which will be used for translation of items
+  /// [arb] - the file content which should be translated
+  /// [sourceLanguage] - the language of [arb]
   factory ARBTranslator.create({
     required AbstractTranslationService translationSvc,
     required ARBContent arb,
@@ -292,8 +298,10 @@ abstract class ARBTranslator {
       overrideExistEntries: overrideExistEntries,
     );
 
-    logger.trace('Unmodified entries count: ${preparedTranslationData.unmodified.length}');
-    logger.trace('To translate entries count: ${preparedTranslationData.candidates.length}');
+    logger.trace(
+        'Unmodified entries count: ${preparedTranslationData.unmodified.length}');
+    logger.trace(
+        'To translate entries count: ${preparedTranslationData.candidates.length}');
 
     final translationResult = await _translateItems(
       preparedTranslationData.candidates,

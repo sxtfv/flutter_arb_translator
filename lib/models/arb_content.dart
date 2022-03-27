@@ -7,6 +7,12 @@ typedef ARBItemSpecialDataKey = String;
 
 enum ARBItemSpecialDataType { plural, select }
 
+/// ARB file content model
+/// [locale] - optional in ARB file
+/// [items] - list of key/value pairs contained by this file
+/// each item may contain annotation, plurals and selects
+/// [lineBreaks] - list of line breaks in the file
+/// used to rebuild file with similar layout
 class ARBContent {
   final LanguageCode? locale;
   final List<ARBItem> items;
@@ -20,13 +26,32 @@ class ARBContent {
 
   factory ARBContent.empty() => ARBContent([]);
 
+  /// Finds ARB item by given key
   ARBItem? findItemByKey(ARBItemKey key) =>
       items.firstWhereOrNull((x) => x.key == key);
 
+  /// Finds ARB item by numeric position in the file
   ARBItem? findItemByNumber(int number) =>
       items.firstWhereOrNull((x) => x.number == number);
 }
 
+/// ARB item model
+/// Example:
+/// ---------------------------------------------------------------------------
+/// "pageHomeTitle" : "Welcome {firstName}",
+/// "@pageHomeTitle" : {
+///   "description" : "Welcome message on the Home screen",
+///   "placeholders": {
+///     "firstName": {}
+///   }
+/// }
+/// ---------------------------------------------------------------------------
+/// [number] - numeric position in the file
+/// [key] - "pageHomeTitle" in example
+/// [value] - "Welcome {firstName}" in example
+/// [plurals] - example doesn't contain plurals
+/// [selects] - example doesn't contain selects
+/// [annotation] - item annotation (optional) ("@pageHomeTitle" in example)
 class ARBItem {
   final int number;
   final ARBItemKey key;
@@ -66,16 +91,32 @@ class ARBItem {
     );
   }
 
+  /// Finds placeholder by given key
   ARBItemAnnotationPlaceholder? findPlaceholderByKey(ARBItemKey key) =>
       annotation?.findPlaceholderByKey(key);
 
+  /// Finds plural by given key
   ARBItemSpecialData? findPluralByKey(ARBItemSpecialDataKey key) =>
       plurals.firstWhereOrNull((x) => x.key == key);
 
+  /// Finds select by given key
   ARBItemSpecialData? findSelectByKey(ARBItemSpecialDataKey key) =>
       selects.firstWhereOrNull((x) => x.key == key);
 }
 
+/// ARB item annotation model
+/// Example:
+/// ---------------------------------------------------------------------------
+/// "@pageHomeTitle" : {
+///   "description" : "Welcome message on the Home screen",
+///   "placeholders": {
+///     "firstName": {}
+///   }
+/// }
+/// ---------------------------------------------------------------------------
+/// [description] - optional, "Welcome message on the Home screen" in example
+/// [placeholders] - List of placeholders with their metadata, ["firstName"]
+/// in example
 class ARBItemAnnotation {
   final String? description;
   final List<ARBItemAnnotationPlaceholder> placeholders;
@@ -87,6 +128,7 @@ class ARBItemAnnotation {
 
   bool get hasPlaceholders => placeholders.isNotEmpty;
 
+  /// Finds placeholder by key
   ARBItemAnnotationPlaceholder? findPlaceholderByKey(
           ARBItemPlaceholderKey key) =>
       placeholders.firstWhereOrNull((x) => x.key == key);
@@ -105,6 +147,18 @@ class ARBItemAnnotation {
   }
 }
 
+/// ARB item annotation placeholder model
+/// Example:
+/// ---------------------------------------------------------------------------
+/// "firstName": {
+///   "type": "String",
+///   "example": "John Doe"
+/// }
+/// ---------------------------------------------------------------------------
+/// [key] - "firstName" in example
+/// [type] - optional, "String" in example
+/// [example] - optional, "John Doe" in example
+/// [format] - optional, not included in example
 class ARBItemAnnotationPlaceholder {
   final ARBItemPlaceholderKey key;
   final String? type;
@@ -131,6 +185,14 @@ class ARBItemAnnotationPlaceholder {
   }
 }
 
+/// Plural or Select data
+/// Example:
+/// ---------------------------------------------------------------------------
+/// {count, plural, zero{0 messages} other{{count} new messages}}
+/// ---------------------------------------------------------------------------
+/// [key] - plural or select key, "count" in example
+/// [type] - type of data [plural/select]
+/// [options] - list of options, ["zero","other"] with their metadata in example
 class ARBItemSpecialData {
   final ARBItemSpecialDataKey key;
   final ARBItemSpecialDataType type;
@@ -209,10 +271,13 @@ class ARBItemSpecialData {
     );
   }
 
+  /// Finds option by given key
   ARBItemSpecialDataOption? findOptionByKey(String key) =>
       options.firstWhereOrNull((x) => x.key == key);
 }
 
+/// Special data option
+/// For plural it can be {zero:"zero messages"},{other:"count of messages"}
 class ARBItemSpecialDataOption {
   final String key;
   final String text;

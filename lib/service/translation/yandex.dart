@@ -6,13 +6,15 @@ import '../log/logger.dart';
 
 import '../../models/types.dart';
 
-/// Documentation:
+/// Translator based on Yandex API
+/// Yandex API Documentation:
 /// https://cloud.yandex.com/en-ru/docs/translate/operations/translate
 class YandexTranslationService extends AbstractTranslationService
     with SupportsBulkTranslationToSingleTarget {
   final HttpClient _httpClient;
   final Logger logger;
 
+  /// [apiKey] - Yandex api key
   YandexTranslationService({
     required String apiKey,
     required this.logger,
@@ -24,6 +26,10 @@ class YandexTranslationService extends AbstractTranslationService
           logger: logger,
         );
 
+  /// Translates given text to specified language
+  /// [source] - text which should be translated
+  /// [sourceLanguage] - the language in which [source] was given
+  /// [target] - language to which [source] should be translated
   @override
   Future<String> translate(
     String source,
@@ -57,6 +63,10 @@ class YandexTranslationService extends AbstractTranslationService
     return apiResult.valueUnsafe.translations.first.text;
   }
 
+  /// Translates given texts to specified language
+  /// [sources] - list of text which should be translated
+  /// [sourceLanguage] - the language in which [sources] were given
+  /// [target] - language to which [sources] should be translated
   @override
   Future<List<String>> translateBulkToSingleTarget(
     List<String> sources,

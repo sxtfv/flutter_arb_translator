@@ -1,20 +1,23 @@
 extension IterableExtensions<T> on Iterable<T> {
+  /// finds item by [test] and returns it but returns null if it doesn't exist
   T? firstWhereOrNull(bool Function(T element) test) {
     final list = where(test);
     return list.isEmpty ? null : list.first;
   }
 
-    bool all(bool Function(T) f) {
-      for (final x in this) {
-        if (!f(x)) {
-          return false;
-        }
+  /// returns true if [f] applies to all items, otherwise false
+  bool all(bool Function(T) f) {
+    for (final x in this) {
+      if (!f(x)) {
+        return false;
       }
-      return true;
     }
+    return true;
+  }
 }
 
 extension IterableIterableExtensions<T> on Iterable<Iterable<T>> {
+  /// selects items from nested lists to single list
   List<T1> selectMany<T1>(T1 Function(T element) test) {
     List<T1> result = [];
     for (final t in this) {
@@ -28,10 +31,12 @@ extension IterableIterableExtensions<T> on Iterable<Iterable<T>> {
 }
 
 extension MapExtension<TKey, TValue> on Map<TKey, TValue> {
+  /// wrapper around [key-value] access
   TValue? lookup(TKey key) => containsKey(key) ? this[key] : null;
 }
 
 extension MapExtensions<TValue> on Map<String, TValue> {
+  /// looks up in nested maps by key like key1:key2:key3
   TValue? lookupNested(String key) {
     if (key.isEmpty) {
       throw Exception('Key is empty');
@@ -55,33 +60,37 @@ extension MapExtensions<TValue> on Map<String, TValue> {
   }
 }
 
-extension IterableToMapExtension<TKey, TValue> on Iterable<MapEntry<TKey, TValue>> {
+extension IterableToMapExtension<TKey, TValue>
+    on Iterable<MapEntry<TKey, TValue>> {
+  /// Converts collection of [MapEntry]s to map
   Map<TKey, TValue> toMap() {
     return Map.fromEntries(this);
   }
 }
 
 extension ListExtensions<T> on List<T> {
-    List<List<T>> pack(int packSize) {
-      final packsCount = (this.length / packSize).ceil();
-      final List<List<T>> result =
-          List.generate(packsCount, (_) => <T>[]);
+  /// Converts list of elements to nested lists of elements
+  /// where each sub-list contains max [packSize] items
+  List<List<T>> pack(int packSize) {
+    final packsCount = (length / packSize).ceil();
+    final List<List<T>> result = List.generate(packsCount, (_) => <T>[]);
 
-      int currentPack = 0;
-      for (int i = 0; i < this.length; i++) {
-        result[currentPack].add(this[i]);
-        final num = i + 1;
-        if (num % packSize == 0) {
-            currentPack++;
-        }
+    int currentPack = 0;
+    for (int i = 0; i < length; i++) {
+      result[currentPack].add(this[i]);
+      final num = i + 1;
+      if (num % packSize == 0) {
+        currentPack++;
       }
-
-      return result;
     }
+
+    return result;
+  }
 }
 
 extension StringExtensions on String {
-int getClosingBracketIndex(int openIndex) {
+  /// Finds '}' of '{' in string where [openIndex] is index of first '{'
+  int getClosingBracketIndex(int openIndex) {
     int result = openIndex;
 
     int opened = 0, closed = 0;

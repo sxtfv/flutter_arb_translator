@@ -18,6 +18,7 @@ enum TranslationServiceType {
   googleCloud,
 }
 
+/// Creates and configures specific translation API services
 class TranslationServiceFactory {
   final Logger logger;
 
@@ -34,6 +35,7 @@ class TranslationServiceFactory {
     return File(filePath).existsSync();
   }
 
+  /// [type] - type of service which should be created and initialized
   Future<AbstractTranslationService> create(TranslationServiceType type) async {
     try {
       final configuration = await _parseConfiguration();

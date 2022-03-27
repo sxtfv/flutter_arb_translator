@@ -1,3 +1,7 @@
+## 1.0.1+1 (27th March 2022)
+
+- Example and documentation
+
 ## 1.0.1 (27th March 2022)
 
 - Added interactive mode

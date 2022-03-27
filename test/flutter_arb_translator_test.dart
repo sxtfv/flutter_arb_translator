@@ -37,14 +37,14 @@ void main() {
       assert(appNameItem.annotation == null);
 
       final pageLoginUsernameItem =
-      arbContent.findItemByKey('pageLoginUsername')!;
+          arbContent.findItemByKey('pageLoginUsername')!;
       assert(pageLoginUsernameItem.value == 'Your username');
       assert(pageLoginUsernameItem.annotation != null);
       assert(pageLoginUsernameItem.annotation!.description == null);
       assert(pageLoginUsernameItem.annotation!.placeholders.isEmpty);
 
       final pageLoginPasswordItem =
-      arbContent.findItemByKey('pageLoginPassword')!;
+          arbContent.findItemByKey('pageLoginPassword')!;
       assert(pageLoginPasswordItem.value == 'Your password');
       assert(pageLoginPasswordItem.annotation != null);
       assert(pageLoginPasswordItem.annotation!.description == null);
@@ -58,13 +58,13 @@ void main() {
       assert(pageHomeTitleItem.annotation!.hasPlaceholders);
       assert(pageHomeTitleItem.annotation!.placeholders.length == 1);
       final pageHomeTitleItemFirstNamePlaceholder =
-      pageHomeTitleItem.findPlaceholderByKey('firstName')!;
+          pageHomeTitleItem.findPlaceholderByKey('firstName')!;
       assert(pageHomeTitleItemFirstNamePlaceholder.example == null);
       assert(pageHomeTitleItemFirstNamePlaceholder.type == null);
       assert(pageHomeTitleItemFirstNamePlaceholder.format == null);
 
       final pageHomeInboxCountItem =
-      arbContent.findItemByKey('pageHomeInboxCount')!;
+          arbContent.findItemByKey('pageHomeInboxCount')!;
       assert(pageHomeInboxCountItem.value ==
           '{count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}');
       assert(pageHomeInboxCountItem.annotation != null);
@@ -73,12 +73,12 @@ void main() {
       assert(pageHomeInboxCountItem.hasPlaceholders);
       assert(pageHomeInboxCountItem.hasPlurals);
       final pageHomeInboxCountItemCountPlaceholder =
-      pageHomeInboxCountItem.findPlaceholderByKey('count')!;
+          pageHomeInboxCountItem.findPlaceholderByKey('count')!;
       assert(pageHomeInboxCountItemCountPlaceholder.format == null);
       assert(pageHomeInboxCountItemCountPlaceholder.type == null);
       assert(pageHomeInboxCountItemCountPlaceholder.example == null);
       final pageHomeInboxCountItemCountPlural =
-      pageHomeInboxCountItem.findPluralByKey('count')!;
+          pageHomeInboxCountItem.findPluralByKey('count')!;
       assert(pageHomeInboxCountItemCountPlural.fullText ==
           '{count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}');
       assert(pageHomeInboxCountItemCountPlural.options.length == 3);
@@ -90,7 +90,7 @@ void main() {
           'You have {count} new messages');
 
       final pageHomeBirthdayItem =
-      arbContent.findItemByKey('pageHomeBirthday')!;
+          arbContent.findItemByKey('pageHomeBirthday')!;
       assert(pageHomeBirthdayItem.value ==
           '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}');
       assert(pageHomeBirthdayItem.annotation != null);
@@ -100,12 +100,12 @@ void main() {
       assert(pageHomeBirthdayItem.hasPlurals == false);
       assert(pageHomeBirthdayItem.hasSelects);
       final pageHomeBirthdayItemSexPlaceholder =
-      pageHomeBirthdayItem.findPlaceholderByKey('sex')!;
+          pageHomeBirthdayItem.findPlaceholderByKey('sex')!;
       assert(pageHomeBirthdayItemSexPlaceholder.format == null);
       assert(pageHomeBirthdayItemSexPlaceholder.type == null);
       assert(pageHomeBirthdayItemSexPlaceholder.example == null);
       final pageHomeBirthdayItemSexSelect =
-      pageHomeBirthdayItem.findSelectByKey('sex')!;
+          pageHomeBirthdayItem.findSelectByKey('sex')!;
       assert(pageHomeBirthdayItemSexSelect.fullText ==
           '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}');
       assert(pageHomeBirthdayItemSexSelect.options.length == 3);
@@ -117,7 +117,7 @@ void main() {
           'Their birthday');
 
       final commonVehicleTypeItem =
-      arbContent.findItemByKey('commonVehicleType')!;
+          arbContent.findItemByKey('commonVehicleType')!;
       assert(commonVehicleTypeItem.value ==
           '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
       assert(commonVehicleTypeItem.annotation != null);
@@ -126,30 +126,30 @@ void main() {
       assert(commonVehicleTypeItem.hasPlurals == false);
       assert(commonVehicleTypeItem.hasSelects);
       final commonVehicleTypeItemVehicleTypePlaceholder =
-      commonVehicleTypeItem.findPlaceholderByKey('vehicleType')!;
+          commonVehicleTypeItem.findPlaceholderByKey('vehicleType')!;
       assert(commonVehicleTypeItemVehicleTypePlaceholder.format == null);
       assert(commonVehicleTypeItemVehicleTypePlaceholder.type == null);
       assert(commonVehicleTypeItemVehicleTypePlaceholder.example == null);
       final commonVehicleTypeItemVehicleTypeSelect =
-      commonVehicleTypeItem.findSelectByKey('vehicleType')!;
+          commonVehicleTypeItem.findSelectByKey('vehicleType')!;
       assert(commonVehicleTypeItemVehicleTypeSelect.fullText ==
           '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
       assert(commonVehicleTypeItemVehicleTypeSelect.options.length == 4);
       assert(commonVehicleTypeItemVehicleTypeSelect
-          .findOptionByKey('sedan')!
-          .text ==
+              .findOptionByKey('sedan')!
+              .text ==
           'Sedan');
       assert(commonVehicleTypeItemVehicleTypeSelect
-          .findOptionByKey('cabriolet')!
-          .text ==
+              .findOptionByKey('cabriolet')!
+              .text ==
           'Solid roof cabriolet');
       assert(commonVehicleTypeItemVehicleTypeSelect
-          .findOptionByKey('truck')!
-          .text ==
+              .findOptionByKey('truck')!
+              .text ==
           '16 wheel truck');
       assert(commonVehicleTypeItemVehicleTypeSelect
-          .findOptionByKey('other')!
-          .text ==
+              .findOptionByKey('other')!
+              .text ==
           'Other');
 
       final complexItem = arbContent.findItemByKey('complexEntry')!;
@@ -157,27 +157,27 @@ void main() {
           'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}');
       assert(complexItem.annotation != null);
       assert(
-      complexItem.annotation!.description == 'complex entry description');
+          complexItem.annotation!.description == 'complex entry description');
       assert(complexItem.hasPlaceholders);
       assert(complexItem.hasPlurals);
       assert(complexItem.hasSelects);
       final complexItemFirstNamePlaceholder =
-      complexItem.findPlaceholderByKey('firstName')!;
+          complexItem.findPlaceholderByKey('firstName')!;
       assert(complexItemFirstNamePlaceholder.type == 'String');
       assert(complexItemFirstNamePlaceholder.example == 'John Doe');
       assert(complexItemFirstNamePlaceholder.format == null);
       final complexItemVehicleTypePlaceholder =
-      complexItem.findPlaceholderByKey('vehicleType')!;
+          complexItem.findPlaceholderByKey('vehicleType')!;
       assert(complexItemVehicleTypePlaceholder.type == null);
       assert(complexItemVehicleTypePlaceholder.example == null);
       assert(complexItemVehicleTypePlaceholder.format == null);
       final complexItemCountPlaceholder =
-      complexItem.findPlaceholderByKey('count')!;
+          complexItem.findPlaceholderByKey('count')!;
       assert(complexItemCountPlaceholder.type == 'int');
       assert(complexItemCountPlaceholder.example == '1');
       assert(complexItemCountPlaceholder.format == null);
       final complexItemVehicleTypeSelect =
-      complexItem.findSelectByKey('vehicleType')!;
+          complexItem.findSelectByKey('vehicleType')!;
       assert(complexItemVehicleTypeSelect.fullText ==
           '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
       assert(complexItemVehicleTypeSelect.options.length == 4);
@@ -218,10 +218,14 @@ void main() {
       );
       writer.writeToFile(newFilePath);
 
-      final originalFileContent =
-      File(sampleFilePath).readAsStringSync().replaceAll(' ', '').replaceAll('\r\n', '\n');
-      final newFileContent =
-      File(newFilePath).readAsStringSync().replaceAll(' ', '').replaceAll('\r\n', '\n');
+      final originalFileContent = File(sampleFilePath)
+          .readAsStringSync()
+          .replaceAll(' ', '')
+          .replaceAll('\r\n', '\n');
+      final newFileContent = File(newFilePath)
+          .readAsStringSync()
+          .replaceAll(' ', '')
+          .replaceAll('\r\n', '\n');
       assert(originalFileContent.length == newFileContent.length);
       assert(originalFileContent == newFileContent);
 
@@ -317,7 +321,7 @@ void main() {
         ARBItem(
           key: 'pageHomeInboxCount',
           value:
-          'Hello John Doe. {count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}',
+              'Hello John Doe. {count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}',
           number: 0,
           plurals: [
             ARBItemSpecialData(
@@ -374,7 +378,7 @@ void main() {
       assert(itemDeutsch.hasPlaceholders);
       assert(itemDeutsch.hasPlurals);
       final countPlaceholderDeutsch =
-      itemDeutsch.findPlaceholderByKey('count')!;
+          itemDeutsch.findPlaceholderByKey('count')!;
       assert(countPlaceholderDeutsch.example == '1');
       assert(countPlaceholderDeutsch.type == 'int');
       final countPluralDeutsch = itemDeutsch.findPluralByKey('count')!;
@@ -397,7 +401,7 @@ void main() {
       assert(itemItalian.hasPlaceholders);
       assert(itemItalian.hasPlurals);
       final countPlaceholderItalian =
-      itemItalian.findPlaceholderByKey('count')!;
+          itemItalian.findPlaceholderByKey('count')!;
       assert(countPlaceholderItalian.example == '1');
       assert(countPlaceholderItalian.type == 'int');
       final countPluralItalian = itemItalian.findPluralByKey('count')!;
@@ -416,7 +420,7 @@ void main() {
         ARBItem(
           key: 'pageHomeBirthday',
           value:
-          '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}',
+              '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}',
           number: 0,
           selects: [
             ARBItemSpecialData(
@@ -468,7 +472,7 @@ void main() {
       assert(sexSelectFrench.fullText ==
           '{sex, select, male{[fr] His birthday} female{[fr] Her birthday} other{[fr] Their birthday}}');
       assert(
-      sexSelectFrench.findOptionByKey('male')!.text == '[fr] His birthday');
+          sexSelectFrench.findOptionByKey('male')!.text == '[fr] His birthday');
       assert(sexSelectFrench.findOptionByKey('female')!.text ==
           '[fr] Her birthday');
       assert(sexSelectFrench.findOptionByKey('other')!.text ==
@@ -480,7 +484,7 @@ void main() {
         ARBItem(
           key: 'complexEntry',
           value:
-          'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}',
+              'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}',
           number: 0,
           annotation: ARBItemAnnotation(
             description: 'complex entry description',
@@ -570,21 +574,21 @@ void main() {
       assert(itemNorwegian.hasSelects);
       assert(itemNorwegian.hasPlurals);
       assert(
-      itemNorwegian.annotation!.description == 'complex entry description');
+          itemNorwegian.annotation!.description == 'complex entry description');
       final firstNamePlaceholderNorwegian =
-      itemNorwegian.findPlaceholderByKey('firstName')!;
+          itemNorwegian.findPlaceholderByKey('firstName')!;
       assert(firstNamePlaceholderNorwegian.type == 'String');
       assert(firstNamePlaceholderNorwegian.example == 'John Doe');
       final vehicleTypePlaceholderNorwegian =
-      itemNorwegian.findPlaceholderByKey('vehicleType')!;
+          itemNorwegian.findPlaceholderByKey('vehicleType')!;
       assert(vehicleTypePlaceholderNorwegian.type == null);
       assert(vehicleTypePlaceholderNorwegian.example == null);
       final countPlaceholderNorwegian =
-      itemNorwegian.findPlaceholderByKey('count')!;
+          itemNorwegian.findPlaceholderByKey('count')!;
       assert(countPlaceholderNorwegian.type == 'int');
       assert(countPlaceholderNorwegian.example == '1');
       final vehicleTypeSelectNorwegian =
-      itemNorwegian.findSelectByKey('vehicleType')!;
+          itemNorwegian.findSelectByKey('vehicleType')!;
       assert(vehicleTypeSelectNorwegian.fullText ==
           '{vehicleType, select, sedan{[no] Sedan} cabriolet{[no] Solid roof cabriolet} truck{[no] 16 wheel truck} other{[no] Other}}');
       assert(vehicleTypeSelectNorwegian.findOptionByKey('sedan')!.text ==
@@ -673,24 +677,24 @@ void main() {
       // only hello_world_2 should be translated
       // other items should not change
       final spanishHelloWorld1 =
-      translationSpanish.findItemByKey('hello_world_1');
+          translationSpanish.findItemByKey('hello_world_1');
       assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
       final italianHelloWorld1 =
-      translationItalian.findItemByKey('hello_world_1');
+          translationItalian.findItemByKey('hello_world_1');
       assert(italianHelloWorld1?.value == 'it Hello world 1 original');
 
       final spanishHelloWorld2 =
-      translationSpanish.findItemByKey('hello_world_2');
+          translationSpanish.findItemByKey('hello_world_2');
       assert(spanishHelloWorld2?.value == '[es] Hello world 2');
       final italianHelloWorld2 =
-      translationItalian.findItemByKey('hello_world_2');
+          translationItalian.findItemByKey('hello_world_2');
       assert(italianHelloWorld2?.value == '[it] Hello world 2');
 
       final spanishHelloWorld3 =
-      translationSpanish.findItemByKey('hello_world_3');
+          translationSpanish.findItemByKey('hello_world_3');
       assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
       final italianHelloWorld3 =
-      translationItalian.findItemByKey('hello_world_3');
+          translationItalian.findItemByKey('hello_world_3');
       assert(italianHelloWorld3 == null);
     });
 
@@ -761,19 +765,19 @@ void main() {
       // only hello_world_2 should be translated
       // other items should not change
       final spanishHelloWorld1 =
-      translationSpanish.findItemByKey('hello_world_1');
+          translationSpanish.findItemByKey('hello_world_1');
       assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
       final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
       assert(italyHelloWorld1?.value == 'it Hello world 1 original');
 
       final spanishHelloWorld2 =
-      translationSpanish.findItemByKey('hello_world_2');
+          translationSpanish.findItemByKey('hello_world_2');
       assert(spanishHelloWorld2?.value == 'es Hello world 2 original');
       final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
       assert(italyHelloWorld2?.value == '[it] Hello world 2');
 
       final spanishHelloWorld3 =
-      translationSpanish.findItemByKey('hello_world_3');
+          translationSpanish.findItemByKey('hello_world_3');
       assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
       final italyHelloWorld3 = translationItaly.findItemByKey('hello_world_3');
       assert(italyHelloWorld3?.value == '[it] Hello world 3');
@@ -846,19 +850,19 @@ void main() {
       // only hello_world_2 should be translated
       // other items should not change
       final spanishHelloWorld1 =
-      translationSpanish.findItemByKey('hello_world_1');
+          translationSpanish.findItemByKey('hello_world_1');
       assert(spanishHelloWorld1?.value == '[es] Hello world 1');
       final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
       assert(italyHelloWorld1?.value == '[it] Hello world 1');
 
       final spanishHelloWorld2 =
-      translationSpanish.findItemByKey('hello_world_2');
+          translationSpanish.findItemByKey('hello_world_2');
       assert(spanishHelloWorld2?.value == '[es] Hello world 2');
       final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
       assert(italyHelloWorld2?.value == '[it] Hello world 2');
 
       final spanishHelloWorld3 =
-      translationSpanish.findItemByKey('hello_world_3');
+          translationSpanish.findItemByKey('hello_world_3');
       assert(spanishHelloWorld3?.value == '[es] Hello world 3');
       final italyHelloWorld3 = translationItaly.findItemByKey('hello_world_3');
       assert(italyHelloWorld3?.value == '[it] Hello world 3');
@@ -893,13 +897,17 @@ void main() {
           existFiles: {},
         );
 
-        final helloWorldNorwegian = translation['no']!.findItemByKey('hello_world');
-        final helloWorldSpanish = translation['es']!.findItemByKey('hello_world');
+        final helloWorldNorwegian =
+            translation['no']!.findItemByKey('hello_world');
+        final helloWorldSpanish =
+            translation['es']!.findItemByKey('hello_world');
         assert(helloWorldNorwegian?.value == '[no] Hello world!');
         assert(helloWorldSpanish?.value == '[es] Hello world!');
 
-        final howAreYouNorwegian = translation['no']!.findItemByKey('how_are_you');
-        final howAreYouSpanish = translation['es']!.findItemByKey('how_are_you');
+        final howAreYouNorwegian =
+            translation['no']!.findItemByKey('how_are_you');
+        final howAreYouSpanish =
+            translation['es']!.findItemByKey('how_are_you');
         assert(howAreYouNorwegian?.value == '[no] How are you?');
         assert(howAreYouSpanish?.value == '[es] How are you?');
       }
@@ -945,26 +953,26 @@ void main() {
       'ko': ARBContentTranslated(
         original.items
             .map((x) => ARBItemTranslated(
-          key: x.key,
-          number: x.number,
-          value: '[ko] ${x.value}',
-          modificationType: ARBItemModificationType.edited,
-          originalValue: originals['ko']!.findItemByKey(x.key)?.value,
-          annotation: null,
-        ))
+                  key: x.key,
+                  number: x.number,
+                  value: '[ko] ${x.value}',
+                  modificationType: ARBItemModificationType.edited,
+                  originalValue: originals['ko']!.findItemByKey(x.key)?.value,
+                  annotation: null,
+                ))
             .toList(),
         locale: 'ko',
       ),
       'de': ARBContentTranslated(
         original.items
             .map((x) => ARBItemTranslated(
-          key: x.key,
-          number: x.number,
-          value: '[de] ${x.value}',
-          modificationType: ARBItemModificationType.added,
-          originalValue: null,
-          annotation: null,
-        ))
+                  key: x.key,
+                  number: x.number,
+                  value: '[de] ${x.value}',
+                  modificationType: ARBItemModificationType.added,
+                  originalValue: null,
+                  annotation: null,
+                ))
             .toList(),
         locale: 'de',
       ),
@@ -1014,7 +1022,7 @@ void main() {
       );
 
       final applying = TranslationApplying(
-          TranslationApplyingType.discardAll,
+        TranslationApplyingType.discardAll,
       );
 
       while (applier.canMoveNext) {
@@ -1034,75 +1042,73 @@ void main() {
 
     test(
         'when apply changes only for specific locale should create correct ARB',
-            () {
-          final applier = ARBTranslationApplier(
-            original: original,
-            originalLocale: 'en',
-            translationTargets: targets,
-            translations: translations,
-            originals: originals,
-            logger: Logger<ARBTranslationApplier>(logLevel),
-          );
+        () {
+      final applier = ARBTranslationApplier(
+        original: original,
+        originalLocale: 'en',
+        translationTargets: targets,
+        translations: translations,
+        originals: originals,
+        logger: Logger<ARBTranslationApplier>(logLevel),
+      );
 
-          final applying = TranslationApplying(
-              TranslationApplyingType.selectTranslations,
-              selectedLanguages: ['ko']
-          );
+      final applying = TranslationApplying(
+          TranslationApplyingType.selectTranslations,
+          selectedLanguages: ['ko']);
 
-          while (applier.canMoveNext) {
-            applier.processCurrentChange(applying);
-            applier.moveNext();
-          }
+      while (applier.canMoveNext) {
+        applier.processCurrentChange(applying);
+        applier.moveNext();
+      }
 
-          final result = applier.getResults();
-          final resultKorean = result['ko']!;
-          final resultDeutsch = result['de']!;
+      final result = applier.getResults();
+      final resultKorean = result['ko']!;
+      final resultDeutsch = result['de']!;
 
-          assert(resultKorean.findItemByKey('hello_world')?.value ==
-              '[ko] Hello world');
-          assert(resultDeutsch.findItemByKey('hello_world') == null);
-          assert(resultKorean.findItemByKey('translation')?.value ==
-              '[ko] Translation');
-          assert(resultDeutsch.findItemByKey('translation') == null);
-        });
+      assert(resultKorean.findItemByKey('hello_world')?.value ==
+          '[ko] Hello world');
+      assert(resultDeutsch.findItemByKey('hello_world') == null);
+      assert(resultKorean.findItemByKey('translation')?.value ==
+          '[ko] Translation');
+      assert(resultDeutsch.findItemByKey('translation') == null);
+    });
 
     test(
         'when apply changes only for specific locale should create correct ARB 2',
-            () {
-          final applier = ARBTranslationApplier(
-            original: original,
-            originalLocale: 'en',
-            translationTargets: targets,
-            translations: translations,
-            originals: originals,
-            logger: Logger<ARBTranslationApplier>(logLevel),
-          );
+        () {
+      final applier = ARBTranslationApplier(
+        original: original,
+        originalLocale: 'en',
+        translationTargets: targets,
+        translations: translations,
+        originals: originals,
+        logger: Logger<ARBTranslationApplier>(logLevel),
+      );
 
-          final applying = TranslationApplying(
-            TranslationApplyingType.selectTranslations,
-            selectedLanguages: ['de']
-          );
-          
-          while (applier.canMoveNext) {
-            applier.processCurrentChange(applying);
-            applier.moveNext();
-          }
+      final applying = TranslationApplying(
+          TranslationApplyingType.selectTranslations,
+          selectedLanguages: ['de']);
 
-          final result = applier.getResults();
-          final resultKorean = result['ko']!;
-          final resultDeutsch = result['de']!;
+      while (applier.canMoveNext) {
+        applier.processCurrentChange(applying);
+        applier.moveNext();
+      }
 
-          assert(resultKorean.findItemByKey('hello_world')?.value == '안녕하세요 세계');
-          assert(resultDeutsch.findItemByKey('hello_world')?.value ==
-              '[de] Hello world');
-          assert(resultKorean.findItemByKey('translation')?.value == '번역');
-          assert(resultDeutsch.findItemByKey('translation')?.value ==
-              '[de] Translation');
-        });
+      final result = applier.getResults();
+      final resultKorean = result['ko']!;
+      final resultDeutsch = result['de']!;
+
+      assert(resultKorean.findItemByKey('hello_world')?.value == '안녕하세요 세계');
+      assert(resultDeutsch.findItemByKey('hello_world')?.value ==
+          '[de] Hello world');
+      assert(resultKorean.findItemByKey('translation')?.value == '번역');
+      assert(resultDeutsch.findItemByKey('translation')?.value ==
+          '[de] Translation');
+    });
 
     test('when one locale has more items they should keep unchanged', () {
       Map<String, ARBContent?> originalsCopy =
-      originals.map((key, value) => MapEntry(key, value));
+          originals.map((key, value) => MapEntry(key, value));
       originalsCopy['it'] = ARBContent([
         ARBItem(
           key: 'hello_world',
@@ -1122,18 +1128,18 @@ void main() {
       ], locale: 'it');
 
       Map<String, ARBContentTranslated> translationsCopy =
-      translations.map((key, value) => MapEntry(key, value));
+          translations.map((key, value) => MapEntry(key, value));
       translationsCopy['it'] = ARBContentTranslated(
         original.items
             .map((x) => ARBItemTranslated(
-          key: x.key,
-          number: x.number,
-          value: '[it] ${x.value}',
-          modificationType: ARBItemModificationType.edited,
-          originalValue:
-          originalsCopy['it']!.findItemByKey(x.key)?.value,
-          annotation: null,
-        ))
+                  key: x.key,
+                  number: x.number,
+                  value: '[it] ${x.value}',
+                  modificationType: ARBItemModificationType.edited,
+                  originalValue:
+                      originalsCopy['it']!.findItemByKey(x.key)?.value,
+                  annotation: null,
+                ))
             .toList(),
         locale: 'it',
       );
@@ -1153,7 +1159,7 @@ void main() {
       final applying = TranslationApplying(
         TranslationApplyingType.applyAll,
       );
-      
+
       while (applier.canMoveNext) {
         applier.processCurrentChange(applying);
         applier.moveNext();
@@ -1178,7 +1184,7 @@ void main() {
           '[it] Translation');
       // this item doesn't exist in other ARBs and should be unchanged
       assert(
-      resultItalian.findItemByKey('third_item')?.value == 'Terzo elemento');
+          resultItalian.findItemByKey('third_item')?.value == 'Terzo elemento');
     });
   });
 }

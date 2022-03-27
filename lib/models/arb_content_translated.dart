@@ -3,12 +3,19 @@ import 'types.dart';
 
 import '../utils/extensions.dart';
 
+/// Describes how ARB item was changed
 enum ARBItemModificationType {
   unmodified,
   added,
   edited,
 }
 
+/// ARB file content model with translations
+/// [locale] - optional in ARB file
+/// [items] - list of key/value pairs contained by this file
+/// each item may contain annotation, plurals and selects
+/// [lineBreaks] - list of line breaks in the file
+/// used to rebuild file with similar layout
 class ARBContentTranslated {
   final LanguageCode? locale;
   final List<ARBItemTranslated> items;
@@ -20,13 +27,18 @@ class ARBContentTranslated {
     this.lineBreaks = const [],
   });
 
+  /// Finds ARB item by given key
   ARBItemTranslated? findItemByKey(String key) =>
       items.firstWhereOrNull((x) => x.key == key);
 
+  /// Finds ARB item by numeric position in file
   ARBItemTranslated? findItemByNumber(int number) =>
       items.firstWhereOrNull((x) => x.number == number);
 }
 
+/// Translated ARB item model
+/// Most of it's fields are same as [ARBItem] fields
+/// but [value] is translated [value] of [ARBItem]
 class ARBItemTranslated {
   final int number;
   final String key;

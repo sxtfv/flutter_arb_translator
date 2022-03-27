@@ -1,3 +1,5 @@
+/// Simple wrapper of server response indicating if request
+/// was successful or not
 class ApiResult<T> {
   final bool succeeded;
   final T? value;
