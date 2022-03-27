@@ -1,6 +1,6 @@
 # Flutter ARB Translator
 
-A command line tool which simplifies translation of Flutter ARB files. You can simply choose a service from supported list: Azure Cognitive Services, Yandex, Google Cloud and flexibly adjust translation options.
+A command line tool which simplifies translation of Flutter ARB files. You can simply choose a service from supported list: Azure Cognitive Services, Yandex, Google Cloud and flexibly adjust translation options. [Get it on pub.dev](https://pub.dev/packages/flutter_arb_translator)
 
 # Installing
 Add `flutter_arb_translator` to your `dev_dependencies`:

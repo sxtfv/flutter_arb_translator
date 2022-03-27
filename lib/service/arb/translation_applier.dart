@@ -1,21 +1,27 @@
+import 'dart:convert';
 import 'dart:io';
 
 import '../../models/arb_content.dart';
 import '../../models/arb_content_translated.dart';
+import '../../models/translation_applying.dart';
+import '../../models/types.dart';
 
 import '../../utils/extensions.dart';
 
+import '../../service/log/logger.dart';
+
 class ARBTranslationApplier {
   final ARBContent original;
-  final String originalLocale;
-  final List<String> translationTargets;
-  final Map<String, ARBContentTranslated> translations;
-  final Map<String, ARBContent?> originals;
+  final LanguageCode originalLocale;
+  final List<LanguageCode> translationTargets;
+  final Map<LanguageCode, ARBContentTranslated> translations;
+  final Map<LanguageCode, ARBContent?> originals;
+  final Logger logger;
 
   int _currentItemIndex = 0;
   final int _itemsCount;
-  Map<String, List<ARBItem>> _resultItems;
-  Map<String, List<String>> _visitedKeys;
+  final Map<LanguageCode, List<ARBItem>> _resultItems;
+  final Map<LanguageCode, List<ARBItemKey>> _visitedKeys;
 
   ARBTranslationApplier({
     required this.original,
@@ -23,11 +29,12 @@ class ARBTranslationApplier {
     required this.translationTargets,
     required this.translations,
     required this.originals,
+    required this.logger,
   })  : _itemsCount = original.items.length,
         _resultItems =
             translationTargets.map((x) => MapEntry(x, <ARBItem>[])).toMap(),
         _visitedKeys =
-            translationTargets.map((x) => MapEntry(x, <String>[])).toMap();
+            translationTargets.map((x) => MapEntry(x, <ARBItemKey>[])).toMap();
 
   bool get canMoveNext => _currentItemIndex < _itemsCount;
 
@@ -101,12 +108,69 @@ class ARBTranslationApplier {
     stdout.writeln(msg.toString());
   }
 
-  /// if targetLocales is specified only their translations will apply
-  /// other locales translations will be unchanged
-  void applyCurrentChange({List<String>? targetLocales}) {
+  void processCurrentChange(TranslationApplying applying) {
+    switch (applying.type) {
+      case TranslationApplyingType.applyAll:
+        _applyCurrentChangeFull();
+        break;
+      case TranslationApplyingType.discardAll:
+        _discardCurrentChangeFull();
+        break;
+      case TranslationApplyingType.selectTranslations:
+        final languages = applying.selectedLanguages ?? [];
+        _applyCurrentChangeForSelectedLanguages(languages);
+        break;
+      case TranslationApplyingType.cancel:
+        return;
+    }
+  }
+
+  void _applyCurrentChangeFull() {
     final currentTranslations = _getCurrentTranslations();
-    bool applySpecificLocales = targetLocales != null;
-    final specificLocales = targetLocales ?? [];
+    logger.info('Will fully apply current change');
+
+    for (final kv in currentTranslations.entries) {
+      final locale = kv.key;
+      final translation = kv.value;
+
+      if (translation == null) {
+        continue;
+      }
+
+      _visitedKeys[locale]!.add(translation.key);
+      logger.info('Apply ${translation.key} for $locale');
+
+      _resultItems[locale]!.add(ARBItem(
+        key: translation.key,
+        number: translation.number,
+        value: translation.value,
+        annotation: translation.annotation,
+        plurals: translation.plurals,
+        selects: translation.selects,
+      ));
+    }
+  }
+
+  void _discardCurrentChangeFull() {
+    logger.info('Will fully discard current change');
+    final itemKey = currentItem.key;
+
+    for (final target in translationTargets) {
+      _visitedKeys[target]!.add(itemKey);
+      logger.info('Discard $itemKey for $target');
+
+      final original = originals.lookup(target)?.findItemByKey(itemKey);
+      if (original == null) {
+        continue;
+      }
+
+      _resultItems[target]!.add(original);
+    }
+  }
+
+  void _applyCurrentChangeForSelectedLanguages(List<String> languages) {
+    final currentTranslations = _getCurrentTranslations();
+    logger.info('Will apply current change for languages $languages');
 
     for (final kv in currentTranslations.entries) {
       final locale = kv.key;
@@ -118,21 +182,8 @@ class ARBTranslationApplier {
 
       _visitedKeys[locale]!.add(translation.key);
 
-      if (applySpecificLocales && !specificLocales.contains(locale)) {
-        final original =
-            originals.lookup(locale)?.findItemByKey(translation.key);
-        if (original == null) {
-          continue;
-        }
-        _resultItems[locale]!.add(ARBItem(
-          key: original.key,
-          number: original.number,
-          value: original.value,
-          annotation: original.annotation,
-          plurals: original.plurals,
-          selects: original.selects,
-        ));
-      } else {
+      if (languages.contains(locale)) {
+        logger.info('Apply translation for ${translation.key} to $locale');
         _resultItems[locale]!.add(ARBItem(
           key: translation.key,
           number: translation.number,
@@ -141,22 +192,81 @@ class ARBTranslationApplier {
           plurals: translation.plurals,
           selects: translation.selects,
         ));
+      } else {
+        logger.info('Discard translation for ${translation.key} to $locale');
+
+        final original =
+            originals.lookup(locale)?.findItemByKey(translation.key);
+
+        if (original == null) {
+          continue;
+        }
+
+        _resultItems[locale]!.add(ARBItem(
+          key: original.key,
+          number: original.number,
+          value: original.value,
+          annotation: original.annotation,
+          plurals: original.plurals,
+          selects: original.selects,
+        ));
       }
     }
   }
 
-  void discardCurrentChange() {
-    final itemKey = currentItem.key;
+  void requestApplyCurrentTranslationConfirmation() {
+    stdout.writeln('Would you like to apply this translation? [Y/N/S/C]');
+    stdout.writeln('[Y] - yes, apply all');
+    stdout.writeln('[N] - no, discard all (default)');
+    stdout.writeln('[S] - select translations to apply. Example: S es,it');
+    stdout.writeln('[C] - cancel all, all changes will be discarded and files '
+        'will be not modified');
+  }
 
-    for (final target in translationTargets) {
-      _visitedKeys[target]!.add(itemKey);
-      final item = originals.lookup(target)?.findItemByKey(itemKey);
+  TranslationApplying readTranslationApplyFromConsole() {
+    final line = stdin.readLineSync(encoding: Encoding.getByName('utf-8')!);
 
-      if (item == null) {
-        continue;
-      }
+    if (line == null || line.isEmpty) {
+      logger.warning('Line is empty. Will discard current translation '
+          '${currentItem.key}');
 
-      _resultItems[target]!.add(item);
+      return TranslationApplying(
+        TranslationApplyingType.discardAll,
+      );
+    }
+
+    final firstChar = line[0].toLowerCase();
+
+    switch (firstChar) {
+      case 'y':
+        return TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+      case 'n':
+        return TranslationApplying(
+          TranslationApplyingType.discardAll,
+        );
+      case 's':
+        final selectedLanguagesStr = line.replaceFirst(firstChar, '').trim();
+        final selectedLanguages =
+            selectedLanguagesStr.split(',').map((x) => x.trim()).toList();
+        if (selectedLanguages.isEmpty) {
+          logger.warning('Select mode but language list is empty $line '
+              '${currentItem.key}');
+        }
+        return TranslationApplying(
+          TranslationApplyingType.selectTranslations,
+          selectedLanguages: selectedLanguages,
+        );
+      case 'c':
+        return TranslationApplying(
+          TranslationApplyingType.cancel,
+        );
+      default:
+        logger.warning('Unsupported apply mode $line');
+        return TranslationApplying(
+          TranslationApplyingType.discardAll,
+        );
     }
   }
 

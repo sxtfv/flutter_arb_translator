@@ -54,7 +54,9 @@ class ARBWriter {
 
     final lines = json.split('\n');
     for (final lineBreakIndex in content.lineBreaks) {
-      lines.insert(lineBreakIndex, '');
+      if (lineBreakIndex >= 0 && lineBreakIndex < lines.length) {
+        lines.insert(lineBreakIndex, '');
+      }
     }
 
     return lines.join('\n');

@@ -13,6 +13,7 @@ import 'package:flutter_arb_translator/service/arb/translator.dart';
 
 import 'package:flutter_arb_translator/models/arb_content.dart';
 import 'package:flutter_arb_translator/models/arb_content_translated.dart';
+import 'package:flutter_arb_translator/models/translation_applying.dart';
 
 import 'fake_translators.dart';
 
@@ -218,9 +219,9 @@ void main() {
       writer.writeToFile(newFilePath);
 
       final originalFileContent =
-      File(sampleFilePath).readAsStringSync().replaceAll(' ', '');
+      File(sampleFilePath).readAsStringSync().replaceAll(' ', '').replaceAll('\r\n', '\n');
       final newFileContent =
-      File(newFilePath).readAsStringSync().replaceAll(' ', '');
+      File(newFilePath).readAsStringSync().replaceAll(' ', '').replaceAll('\r\n', '\n');
       assert(originalFileContent.length == newFileContent.length);
       assert(originalFileContent == newFileContent);
 
@@ -976,10 +977,15 @@ void main() {
         translationTargets: targets,
         translations: translations,
         originals: originals,
+        logger: Logger<ARBTranslationApplier>(logLevel),
+      );
+
+      final applying = TranslationApplying(
+        TranslationApplyingType.applyAll,
       );
 
       while (applier.canMoveNext) {
-        applier.applyCurrentChange();
+        applier.processCurrentChange(applying);
         applier.moveNext();
       }
 
@@ -1004,10 +1010,15 @@ void main() {
         translationTargets: targets,
         translations: translations,
         originals: originals,
+        logger: Logger<ARBTranslationApplier>(logLevel),
+      );
+
+      final applying = TranslationApplying(
+          TranslationApplyingType.discardAll,
       );
 
       while (applier.canMoveNext) {
-        applier.discardCurrentChange();
+        applier.processCurrentChange(applying);
         applier.moveNext();
       }
 
@@ -1030,11 +1041,16 @@ void main() {
             translationTargets: targets,
             translations: translations,
             originals: originals,
+            logger: Logger<ARBTranslationApplier>(logLevel),
           );
 
-          final specificLocales = ['ko'];
+          final applying = TranslationApplying(
+              TranslationApplyingType.selectTranslations,
+              selectedLanguages: ['ko']
+          );
+
           while (applier.canMoveNext) {
-            applier.applyCurrentChange(targetLocales: specificLocales);
+            applier.processCurrentChange(applying);
             applier.moveNext();
           }
 
@@ -1059,11 +1075,16 @@ void main() {
             translationTargets: targets,
             translations: translations,
             originals: originals,
+            logger: Logger<ARBTranslationApplier>(logLevel),
           );
 
-          final specificLocales = ['de'];
+          final applying = TranslationApplying(
+            TranslationApplyingType.selectTranslations,
+            selectedLanguages: ['de']
+          );
+          
           while (applier.canMoveNext) {
-            applier.applyCurrentChange(targetLocales: specificLocales);
+            applier.processCurrentChange(applying);
             applier.moveNext();
           }
 
@@ -1126,10 +1147,15 @@ void main() {
         translationTargets: targetsCopy,
         translations: translationsCopy,
         originals: originalsCopy,
+        logger: Logger<ARBTranslationApplier>(logLevel),
       );
 
+      final applying = TranslationApplying(
+        TranslationApplyingType.applyAll,
+      );
+      
       while (applier.canMoveNext) {
-        applier.applyCurrentChange();
+        applier.processCurrentChange(applying);
         applier.moveNext();
       }
 

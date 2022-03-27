@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_arb_translator/models/translation_applying.dart';
 import 'package:path/path.dart' as path;
 import 'package:args/args.dart' as args;
 
@@ -28,6 +29,7 @@ void main(List<String> arguments) async {
   final keys = args[_ArgsNames.key] as List<String>;
   final ignoreKeys = args[_ArgsNames.ignoreKeys] as List<String>;
   final override = args[_ArgsNames.override] as bool;
+  bool interactive = args[_ArgsNames.interactive] as bool;
 
   if (to.contains(from)) {
     to.remove(from);
@@ -139,13 +141,34 @@ void main(List<String> arguments) async {
     translations: translations,
     translationTargets: to,
     originals: existFiles,
+    logger: Logger<ARBTranslationApplier>(logLevel),
   );
 
+  bool shouldCancel = false;
   while (applier.canMoveNext) {
     applier.stdoutCurrentChange();
-    // maybe add interactive mode in future
-    applier.applyCurrentChange();
+
+    if (interactive) {
+      applier.requestApplyCurrentTranslationConfirmation();
+      final applying = applier.readTranslationApplyFromConsole();
+      if (applying.type == TranslationApplyingType.cancel) {
+        shouldCancel = true;
+        break;
+      } else {
+        applier.processCurrentChange(applying);
+      }
+    } else {
+      applier.processCurrentChange(TranslationApplying(
+        TranslationApplyingType.applyAll,
+      ));
+    }
+
     applier.moveNext();
+  }
+
+  if (shouldCancel) {
+    stdout.writeln('Translation applying canceled');
+    return;
   }
 
   final results = applier.getResults();
@@ -213,6 +236,13 @@ args.ArgParser _initArgsParser() {
   );
 
   argsParser.addFlag(
+    _ArgsNames.interactive,
+    abbr: 'i',
+    help: _ArgsHelp.interactive,
+    defaultsTo: false,
+  );
+
+  argsParser.addFlag(
     _ArgsNames.help,
     abbr: 'h',
     help: _ArgsHelp.help,
@@ -231,6 +261,7 @@ class _ArgsNames {
   static const ignoreKeys = 'ignore';
   static const override = 'override';
   static const help = 'help';
+  static const interactive = 'interactive';
 }
 
 class _ArgsHelp {
@@ -249,4 +280,5 @@ class _ArgsHelp {
       'language already exist all items will be replaced with new translation.'
       ' Otherwise, they will be not modified';
   static const help = 'Print usage instructions';
+  static const interactive = 'You will be prompted before applying translation';
 }

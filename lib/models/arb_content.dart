@@ -87,7 +87,8 @@ class ARBItemAnnotation {
 
   bool get hasPlaceholders => placeholders.isNotEmpty;
 
-  ARBItemAnnotationPlaceholder? findPlaceholderByKey(ARBItemPlaceholderKey key) =>
+  ARBItemAnnotationPlaceholder? findPlaceholderByKey(
+          ARBItemPlaceholderKey key) =>
       placeholders.firstWhereOrNull((x) => x.key == key);
 
   factory ARBItemAnnotation.fromJson(Map<String, dynamic> json) {
