@@ -13,6 +13,6 @@
   },
   "DeepL": {
     "Url": "https://api.deepl.com",
-    "ApiKey": "<required>"
+    "ApiKey": ""
   }
 }
