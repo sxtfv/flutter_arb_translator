@@ -10,5 +10,9 @@
     "ProjectId": "<required>",
     "PrivateKey": "<required>",
     "ClientEmail": "<required>"
+  },
+  "DeepL": {
+    "Url": "https://api.deepl.com",
+    "ApiKey": "<required>"
   }
 }

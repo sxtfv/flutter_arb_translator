@@ -7,6 +7,7 @@ import 'base.dart';
 import 'azure_cognitive_services.dart';
 import 'yandex.dart';
 import 'google_cloud.dart';
+import 'deepl.dart';
 
 import '../log/logger.dart';
 
@@ -16,6 +17,7 @@ enum TranslationServiceType {
   azureCognitiveServices,
   yandex,
   googleCloud,
+  deepL,
 }
 
 /// Creates and configures specific translation API services
@@ -47,6 +49,8 @@ class TranslationServiceFactory {
           return _createYandexTranslator(configuration);
         case TranslationServiceType.googleCloud:
           return await _createGoogleCloudTranslator(configuration);
+        case TranslationServiceType.deepL:
+          return _createDeepLTranslator(configuration);
       }
     } on Exception catch (error) {
       logger.error('Failed to initialize translator service', error);
@@ -151,6 +155,32 @@ class TranslationServiceFactory {
     return GoogleCloudTranslationService(
       projectId: projectId,
       accessToken: accessToken,
+      logger: logger,
+    );
+  }
+
+  DeepLTranslationService _createDeepLTranslator(
+    Map<String, dynamic> configuration,
+  ) {
+    final serviceKey = 'DeepL';
+    final urlKey = 'Url';
+    final apiKeyKey = 'ApiKey';
+
+    final url = configuration.lookupNested('$serviceKey:$urlKey');
+
+    final apiKey = configuration.lookupNested('$serviceKey:$apiKeyKey');
+
+    if (url == null) {
+      throw Exception('$serviceKey:$urlKey is not defined');
+    }
+
+    if (apiKey == null) {
+      throw Exception('$serviceKey$apiKeyKey is not defined');
+    }
+
+    return DeepLTranslationService(
+      url: url,
+      apiKey: apiKey,
       logger: logger,
     );
   }

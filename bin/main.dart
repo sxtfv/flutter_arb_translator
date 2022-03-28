@@ -14,6 +14,8 @@ import 'package:flutter_arb_translator/models/translation_applying.dart';
 import 'package:flutter_arb_translator/models/arb_content.dart';
 import 'package:flutter_arb_translator/utils/extensions.dart';
 
+const logLevel = LogLevel.production;
+
 void main(List<String> arguments) async {
   final argsParser = _initArgsParser();
   final args = argsParser.parse(arguments);
@@ -40,7 +42,7 @@ void main(List<String> arguments) async {
 
   if (serviceName == null) {
     requiredArgsErrors.add('Please specify [service] option [azure, '
-        'yandex, google]');
+        'yandex, google, deepl]');
   }
 
   if (from == null) {
@@ -76,8 +78,6 @@ void main(List<String> arguments) async {
     return;
   }
 
-  final logLevel = LogLevel.production;
-
   final arbParser = ARBParser(
     logger: Logger<ARBParser>(logLevel),
   );
@@ -92,7 +92,7 @@ void main(List<String> arguments) async {
   }
 
   TranslationServiceType serviceType;
-  switch (serviceName) {
+  switch (serviceName!.toLowerCase()) {
     case 'azure':
       serviceType = TranslationServiceType.azureCognitiveServices;
       break;
@@ -101,6 +101,9 @@ void main(List<String> arguments) async {
       break;
     case 'google':
       serviceType = TranslationServiceType.googleCloud;
+      break;
+    case 'deepl':
+      serviceType = TranslationServiceType.deepL;
       break;
     default:
       throw Exception('Unsupported service type: $serviceName');
@@ -208,6 +211,7 @@ args.ArgParser _initArgsParser() {
       'azure',
       'yandex',
       'google',
+      'deepl',
     ],
   );
 

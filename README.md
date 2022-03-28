@@ -1,6 +1,6 @@
 # Flutter ARB Translator
 
-A command line tool which simplifies translation of Flutter ARB files. You can simply choose a service from supported list: Azure Cognitive Services, Yandex, Google Cloud and flexibly adjust translation options. [Get it on pub.dev](https://pub.dev/packages/flutter_arb_translator)
+A command line tool which simplifies translation of Flutter ARB files. You can simply choose a service from supported list: Azure Cognitive Services, Yandex, Google Cloud, DeepL and flexibly adjust translation options. [Get it on pub.dev](https://pub.dev/packages/flutter_arb_translator)
 
 # Installing
 Add `flutter_arb_translator` to your `dev_dependencies`:
@@ -8,7 +8,7 @@ Add `flutter_arb_translator` to your `dev_dependencies`:
 ...
 dev_dependencies:
   ...
-  flutter_arb_translator: ^1.0.1
+  flutter_arb_translator: ^1.0.2
   ...
 ...
 ```
@@ -30,10 +30,14 @@ In your project root directory create a `dev_assets` folder and create `flutter_
     "ProjectId": "<required>",
     "PrivateKey": "<required>",
     "ClientEmail": "<required>"
+  },
+  "DeepL": {
+    "Url": "https://api.deepl.com",
+    "ApiKey": "<required>"
   }
 }
 ```
-Optional JSON blocks means that if you are going to use Azure translation service only `AzureCognitiveServices` block is required in configuration file while YandexCloud and GoogleCloud blocks can be dismissed.
+Optional JSON objects means that if you are going to use Azure translation service - only `AzureCognitiveServices` block is required in configuration file while YandexCloud, GoogleCloud and DeepL blocks can be dismissed.
 
 2. Set up translation service configuration
 
@@ -48,6 +52,10 @@ Yandex translation service uses API key for authorization in Yandex API. See [he
 - Google Cloud
 
 Google Cloud translation service uses [Service Account](https://cloud.google.com/iam/docs/service-accounts) for authorization in Google Cloud API. You will need to create a new account or use existing one and export it's Private Key in JSON format. Then put `project_id`, `private_key` and `client_email` into `dev_assets/flutter_arb_translator_config.json` `GoogleCloud` block. The only Google Cloud API scope used by this project is: [https://www.googleapis.com/auth/cloud-translation]
+
+- DeepL
+
+DeepL translation service uses Api Key for authorization in DeepL API. You will need to create a new DeepL account [here](https://www.deepl.com/pro-api?cta=header-pro-api) or use existing one. Once you got it, put it into `dev_assets/flutter_arb_translator_config.json` `DeepL` JSON block. If you are going to use free DeepL api key update the `Url` value of `DeepL` configuration.
 
 # Example
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:

@@ -11,7 +11,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 /// 3. Run the following command:
 /// flutter pub run flutter_arb_translator:main --from en --to de --to it --service azure
 /// where --service azure depends on service you want to use. For Yandex it will
-/// be --service yandex, for Google Cloud it will be --service google.
+/// be --service yandex, for Google Cloud it will be --service google, for
+/// DeepL it will be --deepl.
 /// Once you completed these steps translations will be created and you will
 /// be able to change the language
 void main() {
