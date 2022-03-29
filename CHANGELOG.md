@@ -1,3 +1,7 @@
+## 1.0.3 (29th March 2022)
+
+- Improve tests and ARB writer
+
 ## 1.0.2 (28th March 2022)
 
 - Added support for DeepL

@@ -68,12 +68,13 @@ class ARBItemTranslated {
 
   factory ARBItemTranslated.unmodified(
     ARBItem item, {
+    required int number,
     ARBItemAnnotation? annotation1,
     List<ARBItemSpecialData> plurals1 = const [],
     List<ARBItemSpecialData> selects1 = const [],
   }) =>
       ARBItemTranslated(
-        number: item.number,
+        number: number,
         key: item.key,
         value: item.value,
         originalValue: item.value,

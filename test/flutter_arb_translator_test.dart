@@ -241,10 +241,12 @@ void main() {
       FakeTranslationServiceSupportsTranslationToMultipleTargets(),
     ];
 
-    final rand = math.Random.secure();
-
-    AbstractTranslationService getRandomTranslationService() {
-      return allTranslators[rand.nextInt(allTranslators.length)];
+    Future<void> runOnAllTranslators(
+      Future<void> Function(AbstractTranslationService) f,
+    ) async {
+      for (final svc in allTranslators) {
+        await f(svc);
+      }
     }
 
     test('simple translation', () async {
@@ -256,21 +258,25 @@ void main() {
         ),
       ], locale: 'en');
 
-      final arbTranslator = ARBTranslator.create(
-          translationSvc: getRandomTranslationService(),
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
           arb: arb,
           sourceLanguage: 'en',
-          logger: Logger<ARBTranslator>(logLevel));
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translationResult = await arbTranslator.translate(
-        languages: ['es'],
-        existFiles: {},
-      );
+        final translationResult = await arbTranslator.translate(
+          languages: ['es'],
+          existFiles: {},
+        );
 
-      final result = translationResult['es']!;
-      assert(result.locale == 'es');
-      assert(result.items.length == 1);
-      assert(result.findItemByKey('hello_world')!.value == '[es] Hello world');
+        final result = translationResult['es']!;
+        assert(result.locale == 'es');
+        assert(result.items.length == 1);
+        assert(
+            result.findItemByKey('hello_world')!.value == '[es] Hello world');
+      });
     });
 
     test('translate item with placeholder', () async {
@@ -292,28 +298,30 @@ void main() {
         ),
       ], locale: 'en');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translationResult = await arbTranslator.translate(
-        languages: ['pt'],
-        existFiles: {},
-      );
+        final translationResult = await arbTranslator.translate(
+          languages: ['pt'],
+          existFiles: {},
+        );
 
-      final result = translationResult['pt']!;
-      assert(result.locale == 'pt');
-      assert(result.items.length == 1);
-      final item = result.findItemByKey('greeting')!;
-      assert(item.value == '[pt] Hello {userName}!');
-      assert(item.annotation != null);
-      assert(item.hasPlaceholders);
-      final userNamePlaceholder = item.findPlaceholderByKey('userName')!;
-      assert(userNamePlaceholder.example == 'John Doe');
-      assert(userNamePlaceholder.type == 'String');
+        final result = translationResult['pt']!;
+        assert(result.locale == 'pt');
+        assert(result.items.length == 1);
+        final item = result.findItemByKey('greeting')!;
+        assert(item.value == '[pt] Hello {userName}!');
+        assert(item.annotation != null);
+        assert(item.hasPlaceholders);
+        final userNamePlaceholder = item.findPlaceholderByKey('userName')!;
+        assert(userNamePlaceholder.example == 'John Doe');
+        assert(userNamePlaceholder.type == 'String');
+      });
     });
 
     test('translate item with plurals', () async {
@@ -356,63 +364,65 @@ void main() {
         ),
       ], locale: 'en');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translationResult = await arbTranslator.translate(
-        languages: ['de', 'it'],
-        existFiles: {},
-      );
+        final translationResult = await arbTranslator.translate(
+          languages: ['de', 'it'],
+          existFiles: {},
+        );
 
-      final resultDeutsch = translationResult['de']!;
-      assert(resultDeutsch.locale == 'de');
-      assert(resultDeutsch.items.length == 1);
-      final itemDeutsch = resultDeutsch.findItemByKey('pageHomeInboxCount')!;
-      assert(itemDeutsch.value ==
-          '[de] Hello John Doe. {count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
-      assert(itemDeutsch.annotation != null);
-      assert(itemDeutsch.hasPlaceholders);
-      assert(itemDeutsch.hasPlurals);
-      final countPlaceholderDeutsch =
-          itemDeutsch.findPlaceholderByKey('count')!;
-      assert(countPlaceholderDeutsch.example == '1');
-      assert(countPlaceholderDeutsch.type == 'int');
-      final countPluralDeutsch = itemDeutsch.findPluralByKey('count')!;
-      assert(countPluralDeutsch.fullText ==
-          '{count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
-      assert(countPluralDeutsch.findOptionByKey('zero')!.text ==
-          '[de] You have no new messages');
-      assert(countPluralDeutsch.findOptionByKey('one')!.text ==
-          '[de] You have 1 new message');
-      assert(countPluralDeutsch.findOptionByKey('other')!.text ==
-          '[de] You have {count} new messages');
+        final resultDeutsch = translationResult['de']!;
+        assert(resultDeutsch.locale == 'de');
+        assert(resultDeutsch.items.length == 1);
+        final itemDeutsch = resultDeutsch.findItemByKey('pageHomeInboxCount')!;
+        assert(itemDeutsch.value ==
+            '[de] Hello John Doe. {count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
+        assert(itemDeutsch.annotation != null);
+        assert(itemDeutsch.hasPlaceholders);
+        assert(itemDeutsch.hasPlurals);
+        final countPlaceholderDeutsch =
+            itemDeutsch.findPlaceholderByKey('count')!;
+        assert(countPlaceholderDeutsch.example == '1');
+        assert(countPlaceholderDeutsch.type == 'int');
+        final countPluralDeutsch = itemDeutsch.findPluralByKey('count')!;
+        assert(countPluralDeutsch.fullText ==
+            '{count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
+        assert(countPluralDeutsch.findOptionByKey('zero')!.text ==
+            '[de] You have no new messages');
+        assert(countPluralDeutsch.findOptionByKey('one')!.text ==
+            '[de] You have 1 new message');
+        assert(countPluralDeutsch.findOptionByKey('other')!.text ==
+            '[de] You have {count} new messages');
 
-      final resultItalian = translationResult['it']!;
-      assert(resultItalian.locale == 'it');
-      assert(resultItalian.items.length == 1);
-      final itemItalian = resultItalian.findItemByKey('pageHomeInboxCount')!;
-      assert(itemItalian.value ==
-          '[it] Hello John Doe. {count, plural, zero{[it] You have no new messages} one{[it] You have 1 new message} other{[it] You have {count} new messages}}');
-      assert(itemItalian.annotation != null);
-      assert(itemItalian.hasPlaceholders);
-      assert(itemItalian.hasPlurals);
-      final countPlaceholderItalian =
-          itemItalian.findPlaceholderByKey('count')!;
-      assert(countPlaceholderItalian.example == '1');
-      assert(countPlaceholderItalian.type == 'int');
-      final countPluralItalian = itemItalian.findPluralByKey('count')!;
-      assert(countPluralItalian.fullText ==
-          '{count, plural, zero{[it] You have no new messages} one{[it] You have 1 new message} other{[it] You have {count} new messages}}');
-      assert(countPluralItalian.findOptionByKey('zero')!.text ==
-          '[it] You have no new messages');
-      assert(countPluralItalian.findOptionByKey('one')!.text ==
-          '[it] You have 1 new message');
-      assert(countPluralItalian.findOptionByKey('other')!.text ==
-          '[it] You have {count} new messages');
+        final resultItalian = translationResult['it']!;
+        assert(resultItalian.locale == 'it');
+        assert(resultItalian.items.length == 1);
+        final itemItalian = resultItalian.findItemByKey('pageHomeInboxCount')!;
+        assert(itemItalian.value ==
+            '[it] Hello John Doe. {count, plural, zero{[it] You have no new messages} one{[it] You have 1 new message} other{[it] You have {count} new messages}}');
+        assert(itemItalian.annotation != null);
+        assert(itemItalian.hasPlaceholders);
+        assert(itemItalian.hasPlurals);
+        final countPlaceholderItalian =
+            itemItalian.findPlaceholderByKey('count')!;
+        assert(countPlaceholderItalian.example == '1');
+        assert(countPlaceholderItalian.type == 'int');
+        final countPluralItalian = itemItalian.findPluralByKey('count')!;
+        assert(countPluralItalian.fullText ==
+            '{count, plural, zero{[it] You have no new messages} one{[it] You have 1 new message} other{[it] You have {count} new messages}}');
+        assert(countPluralItalian.findOptionByKey('zero')!.text ==
+            '[it] You have no new messages');
+        assert(countPluralItalian.findOptionByKey('one')!.text ==
+            '[it] You have 1 new message');
+        assert(countPluralItalian.findOptionByKey('other')!.text ==
+            '[it] You have {count} new messages');
+      });
     });
 
     test('translate item with selects', () async {
@@ -444,39 +454,41 @@ void main() {
         ),
       ], locale: 'en');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translationResult = await arbTranslator.translate(
-        languages: ['fr'],
-        existFiles: {},
-      );
+        final translationResult = await arbTranslator.translate(
+          languages: ['fr'],
+          existFiles: {},
+        );
 
-      final resultFrench = translationResult['fr']!;
-      assert(resultFrench.locale == 'fr');
-      assert(resultFrench.items.length == 1);
-      final itemFrench = resultFrench.findItemByKey('pageHomeBirthday')!;
-      assert(itemFrench.value ==
-          '{sex, select, male{[fr] His birthday} female{[fr] Her birthday} other{[fr] Their birthday}}');
-      assert(itemFrench.annotation != null);
-      assert(itemFrench.hasPlaceholders);
-      assert(itemFrench.hasSelects);
-      final sexPlaceholderFrench = itemFrench.findPlaceholderByKey('sex')!;
-      assert(sexPlaceholderFrench.example == null);
-      assert(sexPlaceholderFrench.type == null);
-      final sexSelectFrench = itemFrench.findSelectByKey('sex')!;
-      assert(sexSelectFrench.fullText ==
-          '{sex, select, male{[fr] His birthday} female{[fr] Her birthday} other{[fr] Their birthday}}');
-      assert(
-          sexSelectFrench.findOptionByKey('male')!.text == '[fr] His birthday');
-      assert(sexSelectFrench.findOptionByKey('female')!.text ==
-          '[fr] Her birthday');
-      assert(sexSelectFrench.findOptionByKey('other')!.text ==
-          '[fr] Their birthday');
+        final resultFrench = translationResult['fr']!;
+        assert(resultFrench.locale == 'fr');
+        assert(resultFrench.items.length == 1);
+        final itemFrench = resultFrench.findItemByKey('pageHomeBirthday')!;
+        assert(itemFrench.value ==
+            '{sex, select, male{[fr] His birthday} female{[fr] Her birthday} other{[fr] Their birthday}}');
+        assert(itemFrench.annotation != null);
+        assert(itemFrench.hasPlaceholders);
+        assert(itemFrench.hasSelects);
+        final sexPlaceholderFrench = itemFrench.findPlaceholderByKey('sex')!;
+        assert(sexPlaceholderFrench.example == null);
+        assert(sexPlaceholderFrench.type == null);
+        final sexSelectFrench = itemFrench.findSelectByKey('sex')!;
+        assert(sexSelectFrench.fullText ==
+            '{sex, select, male{[fr] His birthday} female{[fr] Her birthday} other{[fr] Their birthday}}');
+        assert(sexSelectFrench.findOptionByKey('male')!.text ==
+            '[fr] His birthday');
+        assert(sexSelectFrench.findOptionByKey('female')!.text ==
+            '[fr] Her birthday');
+        assert(sexSelectFrench.findOptionByKey('other')!.text ==
+            '[fr] Their birthday');
+      });
     });
 
     test('complex_translations_1', () async {
@@ -551,63 +563,65 @@ void main() {
         ),
       ], locale: 'en');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translationResult = await arbTranslator.translate(
-        languages: ['no'],
-        existFiles: {},
-      );
+        final translationResult = await arbTranslator.translate(
+          languages: ['no'],
+          existFiles: {},
+        );
 
-      final resultNorwegian = translationResult['no']!;
-      assert(resultNorwegian.locale == 'no');
-      assert(resultNorwegian.items.length == 1);
-      final itemNorwegian = resultNorwegian.findItemByKey('complexEntry')!;
-      assert(itemNorwegian.value ==
-          '[no] Hello {firstName}, your car is {vehicleType, select, sedan{[no] Sedan} cabriolet{[no] Solid roof cabriolet} truck{[no] 16 wheel truck} other{[no] Other}}. You have {count, plural, zero{[no] no new messages} one{[no] 1 new message} other{[no] {count} new messages}}');
-      assert(itemNorwegian.annotation != null);
-      assert(itemNorwegian.hasPlaceholders);
-      assert(itemNorwegian.hasSelects);
-      assert(itemNorwegian.hasPlurals);
-      assert(
-          itemNorwegian.annotation!.description == 'complex entry description');
-      final firstNamePlaceholderNorwegian =
-          itemNorwegian.findPlaceholderByKey('firstName')!;
-      assert(firstNamePlaceholderNorwegian.type == 'String');
-      assert(firstNamePlaceholderNorwegian.example == 'John Doe');
-      final vehicleTypePlaceholderNorwegian =
-          itemNorwegian.findPlaceholderByKey('vehicleType')!;
-      assert(vehicleTypePlaceholderNorwegian.type == null);
-      assert(vehicleTypePlaceholderNorwegian.example == null);
-      final countPlaceholderNorwegian =
-          itemNorwegian.findPlaceholderByKey('count')!;
-      assert(countPlaceholderNorwegian.type == 'int');
-      assert(countPlaceholderNorwegian.example == '1');
-      final vehicleTypeSelectNorwegian =
-          itemNorwegian.findSelectByKey('vehicleType')!;
-      assert(vehicleTypeSelectNorwegian.fullText ==
-          '{vehicleType, select, sedan{[no] Sedan} cabriolet{[no] Solid roof cabriolet} truck{[no] 16 wheel truck} other{[no] Other}}');
-      assert(vehicleTypeSelectNorwegian.findOptionByKey('sedan')!.text ==
-          '[no] Sedan');
-      assert(vehicleTypeSelectNorwegian.findOptionByKey('cabriolet')!.text ==
-          '[no] Solid roof cabriolet');
-      assert(vehicleTypeSelectNorwegian.findOptionByKey('truck')!.text ==
-          '[no] 16 wheel truck');
-      assert(vehicleTypeSelectNorwegian.findOptionByKey('other')!.text ==
-          '[no] Other');
-      final countPluralNorwegian = itemNorwegian.findPluralByKey('count')!;
-      assert(countPluralNorwegian.fullText ==
-          '{count, plural, zero{[no] no new messages} one{[no] 1 new message} other{[no] {count} new messages}}');
-      assert(countPluralNorwegian.findOptionByKey('zero')!.text ==
-          '[no] no new messages');
-      assert(countPluralNorwegian.findOptionByKey('one')!.text ==
-          '[no] 1 new message');
-      assert(countPluralNorwegian.findOptionByKey('other')!.text ==
-          '[no] {count} new messages');
+        final resultNorwegian = translationResult['no']!;
+        assert(resultNorwegian.locale == 'no');
+        assert(resultNorwegian.items.length == 1);
+        final itemNorwegian = resultNorwegian.findItemByKey('complexEntry')!;
+        assert(itemNorwegian.value ==
+            '[no] Hello {firstName}, your car is {vehicleType, select, sedan{[no] Sedan} cabriolet{[no] Solid roof cabriolet} truck{[no] 16 wheel truck} other{[no] Other}}. You have {count, plural, zero{[no] no new messages} one{[no] 1 new message} other{[no] {count} new messages}}');
+        assert(itemNorwegian.annotation != null);
+        assert(itemNorwegian.hasPlaceholders);
+        assert(itemNorwegian.hasSelects);
+        assert(itemNorwegian.hasPlurals);
+        assert(itemNorwegian.annotation!.description ==
+            'complex entry description');
+        final firstNamePlaceholderNorwegian =
+            itemNorwegian.findPlaceholderByKey('firstName')!;
+        assert(firstNamePlaceholderNorwegian.type == 'String');
+        assert(firstNamePlaceholderNorwegian.example == 'John Doe');
+        final vehicleTypePlaceholderNorwegian =
+            itemNorwegian.findPlaceholderByKey('vehicleType')!;
+        assert(vehicleTypePlaceholderNorwegian.type == null);
+        assert(vehicleTypePlaceholderNorwegian.example == null);
+        final countPlaceholderNorwegian =
+            itemNorwegian.findPlaceholderByKey('count')!;
+        assert(countPlaceholderNorwegian.type == 'int');
+        assert(countPlaceholderNorwegian.example == '1');
+        final vehicleTypeSelectNorwegian =
+            itemNorwegian.findSelectByKey('vehicleType')!;
+        assert(vehicleTypeSelectNorwegian.fullText ==
+            '{vehicleType, select, sedan{[no] Sedan} cabriolet{[no] Solid roof cabriolet} truck{[no] 16 wheel truck} other{[no] Other}}');
+        assert(vehicleTypeSelectNorwegian.findOptionByKey('sedan')!.text ==
+            '[no] Sedan');
+        assert(vehicleTypeSelectNorwegian.findOptionByKey('cabriolet')!.text ==
+            '[no] Solid roof cabriolet');
+        assert(vehicleTypeSelectNorwegian.findOptionByKey('truck')!.text ==
+            '[no] 16 wheel truck');
+        assert(vehicleTypeSelectNorwegian.findOptionByKey('other')!.text ==
+            '[no] Other');
+        final countPluralNorwegian = itemNorwegian.findPluralByKey('count')!;
+        assert(countPluralNorwegian.fullText ==
+            '{count, plural, zero{[no] no new messages} one{[no] 1 new message} other{[no] {count} new messages}}');
+        assert(countPluralNorwegian.findOptionByKey('zero')!.text ==
+            '[no] no new messages');
+        assert(countPluralNorwegian.findOptionByKey('one')!.text ==
+            '[no] 1 new message');
+        assert(countPluralNorwegian.findOptionByKey('other')!.text ==
+            '[no] {count} new messages');
+      });
     });
 
     test('when translate specific key should ignore others', () async {
@@ -655,47 +669,49 @@ void main() {
         ),
       ], locale: 'it');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translation = await arbTranslator.translate(
-        languages: ['es', 'it'],
-        existFiles: {
-          'es': arbSpanish,
-          'it': arbItalian,
-        },
-        keys: ['hello_world_2'],
-      );
+        final translation = await arbTranslator.translate(
+          languages: ['es', 'it'],
+          existFiles: {
+            'es': arbSpanish,
+            'it': arbItalian,
+          },
+          keys: ['hello_world_2'],
+        );
 
-      final translationItalian = translation['it']!;
-      final translationSpanish = translation['es']!;
+        final translationItalian = translation['it']!;
+        final translationSpanish = translation['es']!;
 
-      // only hello_world_2 should be translated
-      // other items should not change
-      final spanishHelloWorld1 =
-          translationSpanish.findItemByKey('hello_world_1');
-      assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
-      final italianHelloWorld1 =
-          translationItalian.findItemByKey('hello_world_1');
-      assert(italianHelloWorld1?.value == 'it Hello world 1 original');
+        // only hello_world_2 should be translated
+        // other items should not change
+        final spanishHelloWorld1 =
+            translationSpanish.findItemByKey('hello_world_1');
+        assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
+        final italianHelloWorld1 =
+            translationItalian.findItemByKey('hello_world_1');
+        assert(italianHelloWorld1?.value == 'it Hello world 1 original');
 
-      final spanishHelloWorld2 =
-          translationSpanish.findItemByKey('hello_world_2');
-      assert(spanishHelloWorld2?.value == '[es] Hello world 2');
-      final italianHelloWorld2 =
-          translationItalian.findItemByKey('hello_world_2');
-      assert(italianHelloWorld2?.value == '[it] Hello world 2');
+        final spanishHelloWorld2 =
+            translationSpanish.findItemByKey('hello_world_2');
+        assert(spanishHelloWorld2?.value == '[es] Hello world 2');
+        final italianHelloWorld2 =
+            translationItalian.findItemByKey('hello_world_2');
+        assert(italianHelloWorld2?.value == '[it] Hello world 2');
 
-      final spanishHelloWorld3 =
-          translationSpanish.findItemByKey('hello_world_3');
-      assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
-      final italianHelloWorld3 =
-          translationItalian.findItemByKey('hello_world_3');
-      assert(italianHelloWorld3 == null);
+        final spanishHelloWorld3 =
+            translationSpanish.findItemByKey('hello_world_3');
+        assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
+        final italianHelloWorld3 =
+            translationItalian.findItemByKey('hello_world_3');
+        assert(italianHelloWorld3 == null);
+      });
     });
 
     test('when ignore specific key should translate others', () async {
@@ -743,44 +759,49 @@ void main() {
         ),
       ], locale: 'it');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
 
-      final translation = await arbTranslator.translate(
-        languages: ['es', 'it'],
-        existFiles: {
-          'es': arbSpanish,
-          'it': arbItaly,
-        },
-        ignoreKeys: ['hello_world_1'],
-      );
+        final translation = await arbTranslator.translate(
+          languages: ['es', 'it'],
+          existFiles: {
+            'es': arbSpanish,
+            'it': arbItaly,
+          },
+          ignoreKeys: ['hello_world_1'],
+        );
 
-      final translationItaly = translation['it']!;
-      final translationSpanish = translation['es']!;
+        final translationItaly = translation['it']!;
+        final translationSpanish = translation['es']!;
 
-      // only hello_world_2 should be translated
-      // other items should not change
-      final spanishHelloWorld1 =
-          translationSpanish.findItemByKey('hello_world_1');
-      assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
-      final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
-      assert(italyHelloWorld1?.value == 'it Hello world 1 original');
+        // only hello_world_2 should be translated
+        // other items should not change
+        final spanishHelloWorld1 =
+            translationSpanish.findItemByKey('hello_world_1');
+        assert(spanishHelloWorld1?.value == 'es Hello world 1 original');
+        final italyHelloWorld1 =
+            translationItaly.findItemByKey('hello_world_1');
+        assert(italyHelloWorld1?.value == 'it Hello world 1 original');
 
-      final spanishHelloWorld2 =
-          translationSpanish.findItemByKey('hello_world_2');
-      assert(spanishHelloWorld2?.value == 'es Hello world 2 original');
-      final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
-      assert(italyHelloWorld2?.value == '[it] Hello world 2');
+        final spanishHelloWorld2 =
+            translationSpanish.findItemByKey('hello_world_2');
+        assert(spanishHelloWorld2?.value == 'es Hello world 2 original');
+        final italyHelloWorld2 =
+            translationItaly.findItemByKey('hello_world_2');
+        assert(italyHelloWorld2?.value == '[it] Hello world 2');
 
-      final spanishHelloWorld3 =
-          translationSpanish.findItemByKey('hello_world_3');
-      assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
-      final italyHelloWorld3 = translationItaly.findItemByKey('hello_world_3');
-      assert(italyHelloWorld3?.value == '[it] Hello world 3');
+        final spanishHelloWorld3 =
+            translationSpanish.findItemByKey('hello_world_3');
+        assert(spanishHelloWorld3?.value == 'es Hello world 3 original');
+        final italyHelloWorld3 =
+            translationItaly.findItemByKey('hello_world_3');
+        assert(italyHelloWorld3?.value == '[it] Hello world 3');
+      });
     });
 
     test('when should replace exist entries should work', () async {
@@ -828,89 +849,49 @@ void main() {
         ),
       ], locale: 'it');
 
-      final arbTranslator = ARBTranslator.create(
-        translationSvc: getRandomTranslationService(),
-        arb: arb,
-        sourceLanguage: 'en',
-        logger: Logger<ARBTranslator>(logLevel),
-      );
-
-      final translation = await arbTranslator.translate(
-        languages: ['es', 'it'],
-        existFiles: {
-          'es': arbSpanish,
-          'it': arbItaly,
-        },
-        overrideExistEntries: true,
-      );
-
-      final translationItaly = translation['it']!;
-      final translationSpanish = translation['es']!;
-
-      // only hello_world_2 should be translated
-      // other items should not change
-      final spanishHelloWorld1 =
-          translationSpanish.findItemByKey('hello_world_1');
-      assert(spanishHelloWorld1?.value == '[es] Hello world 1');
-      final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
-      assert(italyHelloWorld1?.value == '[it] Hello world 1');
-
-      final spanishHelloWorld2 =
-          translationSpanish.findItemByKey('hello_world_2');
-      assert(spanishHelloWorld2?.value == '[es] Hello world 2');
-      final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
-      assert(italyHelloWorld2?.value == '[it] Hello world 2');
-
-      final spanishHelloWorld3 =
-          translationSpanish.findItemByKey('hello_world_3');
-      assert(spanishHelloWorld3?.value == '[es] Hello world 3');
-      final italyHelloWorld3 = translationItaly.findItemByKey('hello_world_3');
-      assert(italyHelloWorld3?.value == '[it] Hello world 3');
-    });
-
-    test('with all types of translation services should work', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'hello_world',
-          value: 'Hello world!',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'how_are_you',
-          value: 'How are you?',
-          number: 1,
-        ),
-      ], locale: 'en');
-
-      final targets = ['no', 'es'];
-
-      for (final translationSvc in allTranslators) {
+      await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
-          translationSvc: translationSvc,
+          translationSvc: svc,
           arb: arb,
           sourceLanguage: 'en',
           logger: Logger<ARBTranslator>(logLevel),
         );
 
         final translation = await arbTranslator.translate(
-          languages: targets,
-          existFiles: {},
+          languages: ['es', 'it'],
+          existFiles: {
+            'es': arbSpanish,
+            'it': arbItaly,
+          },
+          overrideExistEntries: true,
         );
 
-        final helloWorldNorwegian =
-            translation['no']!.findItemByKey('hello_world');
-        final helloWorldSpanish =
-            translation['es']!.findItemByKey('hello_world');
-        assert(helloWorldNorwegian?.value == '[no] Hello world!');
-        assert(helloWorldSpanish?.value == '[es] Hello world!');
+        final translationItaly = translation['it']!;
+        final translationSpanish = translation['es']!;
 
-        final howAreYouNorwegian =
-            translation['no']!.findItemByKey('how_are_you');
-        final howAreYouSpanish =
-            translation['es']!.findItemByKey('how_are_you');
-        assert(howAreYouNorwegian?.value == '[no] How are you?');
-        assert(howAreYouSpanish?.value == '[es] How are you?');
-      }
+        // only hello_world_2 should be translated
+        // other items should not change
+        final spanishHelloWorld1 =
+            translationSpanish.findItemByKey('hello_world_1');
+        assert(spanishHelloWorld1?.value == '[es] Hello world 1');
+        final italyHelloWorld1 =
+            translationItaly.findItemByKey('hello_world_1');
+        assert(italyHelloWorld1?.value == '[it] Hello world 1');
+
+        final spanishHelloWorld2 =
+            translationSpanish.findItemByKey('hello_world_2');
+        assert(spanishHelloWorld2?.value == '[es] Hello world 2');
+        final italyHelloWorld2 =
+            translationItaly.findItemByKey('hello_world_2');
+        assert(italyHelloWorld2?.value == '[it] Hello world 2');
+
+        final spanishHelloWorld3 =
+            translationSpanish.findItemByKey('hello_world_3');
+        assert(spanishHelloWorld3?.value == '[es] Hello world 3');
+        final italyHelloWorld3 =
+            translationItaly.findItemByKey('hello_world_3');
+        assert(italyHelloWorld3?.value == '[it] Hello world 3');
+      });
     });
   });
 

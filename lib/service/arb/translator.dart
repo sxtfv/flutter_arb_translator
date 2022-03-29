@@ -357,6 +357,7 @@ abstract class ARBTranslator {
           if (existTranslation != null) {
             unmodified[arbItem.key]![target] = ARBItemTranslated.unmodified(
               existTranslation,
+              number: arbItem.number,
               annotation1: arbItem.annotation,
               plurals1: arbItem.plurals,
               selects1: arbItem.selects,
@@ -377,6 +378,7 @@ abstract class ARBTranslator {
 
         unmodified[arbItem.key]![target] = ARBItemTranslated.unmodified(
           existTranslation,
+          number: arbItem.number,
           annotation1: arbItem.annotation,
           selects1: arbItem.selects,
           plurals1: arbItem.plurals,
