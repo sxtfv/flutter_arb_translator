@@ -1,3 +1,7 @@
+## 1.0.4 (30th March 2022)
+
+- Improve documentation and examples
+
 ## 1.0.3 (29th March 2022)
 
 - Improve tests and ARB writer
