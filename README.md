@@ -127,7 +127,7 @@ Google Cloud translation service uses [Service Account](https://cloud.google.com
 
 DeepL translation service uses Api Key for authorization in DeepL API. You will need to create a new DeepL account [here](https://www.deepl.com/pro-api?cta=header-pro-api) or use existing one. Once you got it, put API key into `dev_assets/flutter_arb_translator_config.json` `DeepL` JSON object. If you are going to use free DeepL API key update the `Url` value of `DeepL` configuration.
 
-# Example
+# Usage
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:
 ```shell
 flutter pub run flutter_arb_translator:main --from en --to es --to it --service azure
