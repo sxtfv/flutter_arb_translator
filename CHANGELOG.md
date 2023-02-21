@@ -1,3 +1,7 @@
+## 1.0.5 (21st February 2023)
+
+- Fix source language always 'en'
+
 ## 1.0.4 (30th March 2022)
 
 - Improve documentation and examples

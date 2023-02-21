@@ -134,7 +134,7 @@ void main(List<String> arguments) async {
   final arbTranslator = ARBTranslator.create(
     translationSvc: translationSvc,
     arb: arb,
-    sourceLanguage: 'en',
+    sourceLanguage: from!,
     logger: Logger<ARBTranslator>(logLevel),
   );
 
@@ -148,7 +148,7 @@ void main(List<String> arguments) async {
 
   final applier = ARBTranslationApplier(
     original: arb,
-    originalLocale: 'en',
+    originalLocale: from!,
     translations: translations,
     translationTargets: to,
     originals: existFiles,
