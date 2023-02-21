@@ -148,7 +148,7 @@ void main(List<String> arguments) async {
 
   final applier = ARBTranslationApplier(
     original: arb,
-    originalLocale: from!,
+    originalLocale: from,
     translations: translations,
     translationTargets: to,
     originals: existFiles,

@@ -1,3 +1,7 @@
+## 1.0.6 (21st February 2023)
+
+- Fix static analysis issue
+
 ## 1.0.5 (21st February 2023)
 
 - Fix source language always 'en'
