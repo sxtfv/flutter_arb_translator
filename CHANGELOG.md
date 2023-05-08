@@ -1,3 +1,7 @@
+## 1.0.7 (8th May 2023)
+
+- Update docs
+
 ## 1.0.6 (21st February 2023)
 
 - Fix static analysis issue
