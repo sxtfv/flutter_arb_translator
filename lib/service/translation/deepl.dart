@@ -38,8 +38,10 @@ class DeepLTranslationService extends AbstractTranslationService
 
     final apiResult = await _httpClient.post<_DeepLTranslation>(
       path: 'v2/translate',
+      headers: {
+        'Authorization': 'DeepL-Auth-Key $apiKey'
+      },
       parameters: {
-        'auth_key': apiKey,
         'source_lang': sourceLanguage,
         'target_lang': target,
         'text': source,
@@ -70,7 +72,6 @@ class DeepLTranslationService extends AbstractTranslationService
         'Translate bulk "$sources" from $sourceLanguage to single $target');
 
     List<MapEntry<String, String>> parameters = [];
-    parameters.add(MapEntry('auth_key', apiKey));
     parameters.add(MapEntry('source_lang', sourceLanguage));
     parameters.add(MapEntry('target_lang', target));
     for (final source in sources) {
@@ -82,6 +83,9 @@ class DeepLTranslationService extends AbstractTranslationService
 
     final apiResult = await _httpClient.post<_DeepLTranslation>(
       path: 'v2/translate?$parametersStr',
+      headers: {
+        'Authorization': 'DeepL-Auth-Key $apiKey'
+      },
       decoder: (response) => _decodeTranslationJson(response.body),
       body: {},
     );

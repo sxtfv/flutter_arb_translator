@@ -1,3 +1,7 @@
+## 1.0.8 (8th Aug 2023)
+
+- Fix missing DeepL Authorization header
+
 ## 1.0.7 (8th May 2023)
 
 - Update docs
