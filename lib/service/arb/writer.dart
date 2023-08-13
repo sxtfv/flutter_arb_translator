@@ -67,7 +67,7 @@ class ARBWriter {
   Map<String, dynamic> _arbItemToJson(ARBItem item) {
     Map<String, dynamic> result = {};
     result[item.key] = item.value;
-    if (item.annotation != null) {
+    if (item.annotation != null && item.annotation?.isAutoGen == false) {
       result['@${item.key}'] = _annotationToJson(item.annotation!);
     }
     return result;

@@ -230,6 +230,164 @@ void main() {
 
       File(newFilePath).deleteSync();
     });
+
+    test('parser. placeholder detection', () {
+      final sampleFilePathWithoutAnnotation =
+          path.absolute('test_assets/without_annotation_en.arb');
+
+      final parser = ARBParser(
+        logger: Logger<ARBParser>(logLevel),
+      );
+
+      final arbContent = parser.parse(sampleFilePathWithoutAnnotation);
+      assert((arbContent.locale ?? '') == 'en');
+
+      assert(arbContent.items.length == 8);
+
+      final appNameItem = arbContent.findItemByKey('appName')!;
+      assert(appNameItem.value == 'Demo app');
+      assert(appNameItem.annotation == null);
+
+      final pageLoginUsernameItem =
+          arbContent.findItemByKey('pageLoginUsername')!;
+      assert(pageLoginUsernameItem.value == 'Your username');
+      assert(pageLoginUsernameItem.annotation != null);
+      assert(pageLoginUsernameItem.annotation!.description == null);
+      assert(pageLoginUsernameItem.annotation!.placeholders.isEmpty);
+
+      final pageLoginPasswordItem =
+          arbContent.findItemByKey('pageLoginPassword')!;
+      assert(pageLoginPasswordItem.value == 'Your password');
+      assert(pageLoginPasswordItem.annotation != null);
+      assert(pageLoginPasswordItem.annotation!.description == null);
+      assert(pageLoginPasswordItem.annotation!.placeholders.isEmpty);
+
+      final pageHomeTitleItem = arbContent.findItemByKey('pageHomeTitle')!;
+      assert(pageHomeTitleItem.value == 'Welcome {firstName}');
+      assert(pageHomeTitleItem.annotation != null);
+      assert(pageHomeTitleItem.annotation!.hasPlaceholders);
+      assert(pageHomeTitleItem.annotation!.placeholders.length == 1);
+      final pageHomeTitleItemFirstNamePlaceholder =
+          pageHomeTitleItem.findPlaceholderByKey('firstName')!;
+      assert(pageHomeTitleItemFirstNamePlaceholder.example == null);
+      assert(pageHomeTitleItemFirstNamePlaceholder.type == null);
+      assert(pageHomeTitleItemFirstNamePlaceholder.format == null);
+
+      final pageHomeInboxCountItem =
+          arbContent.findItemByKey('pageHomeInboxCount')!;
+      assert(pageHomeInboxCountItem.value ==
+          '{count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}');
+      assert(pageHomeInboxCountItem.annotation != null);
+      assert(pageHomeInboxCountItem.hasPlaceholders);
+      assert(pageHomeInboxCountItem.hasPlurals);
+      final pageHomeInboxCountItemCountPlaceholder =
+          pageHomeInboxCountItem.findPlaceholderByKey('count')!;
+      assert(pageHomeInboxCountItemCountPlaceholder.format == null);
+      assert(pageHomeInboxCountItemCountPlaceholder.type == null);
+      assert(pageHomeInboxCountItemCountPlaceholder.example == null);
+      final pageHomeInboxCountItemCountPlural =
+          pageHomeInboxCountItem.findPluralByKey('count')!;
+      assert(pageHomeInboxCountItemCountPlural.fullText ==
+          '{count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}');
+      assert(pageHomeInboxCountItemCountPlural.options.length == 3);
+      assert(pageHomeInboxCountItemCountPlural.findOptionByKey('zero')!.text ==
+          'You have no new messages');
+      assert(pageHomeInboxCountItemCountPlural.findOptionByKey('one')!.text ==
+          'You have 1 new message');
+      assert(pageHomeInboxCountItemCountPlural.findOptionByKey('other')!.text ==
+          'You have {count} new messages');
+
+      final pageHomeBirthdayItem =
+          arbContent.findItemByKey('pageHomeBirthday')!;
+      assert(pageHomeBirthdayItem.value ==
+          '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}');
+      assert(pageHomeBirthdayItem.annotation != null);
+      assert(pageHomeBirthdayItem.hasPlaceholders);
+      assert(pageHomeBirthdayItem.hasPlurals == false);
+      assert(pageHomeBirthdayItem.hasSelects);
+      final pageHomeBirthdayItemSexPlaceholder =
+          pageHomeBirthdayItem.findPlaceholderByKey('sex')!;
+      assert(pageHomeBirthdayItemSexPlaceholder.format == null);
+      assert(pageHomeBirthdayItemSexPlaceholder.type == null);
+      assert(pageHomeBirthdayItemSexPlaceholder.example == null);
+      final pageHomeBirthdayItemSexSelect =
+          pageHomeBirthdayItem.findSelectByKey('sex')!;
+      assert(pageHomeBirthdayItemSexSelect.fullText ==
+          '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}');
+      assert(pageHomeBirthdayItemSexSelect.options.length == 3);
+      assert(pageHomeBirthdayItemSexSelect.findOptionByKey('male')!.text ==
+          'His birthday');
+      assert(pageHomeBirthdayItemSexSelect.findOptionByKey('female')!.text ==
+          'Her birthday');
+      assert(pageHomeBirthdayItemSexSelect.findOptionByKey('other')!.text ==
+          'Their birthday');
+
+      final commonVehicleTypeItem =
+          arbContent.findItemByKey('commonVehicleType')!;
+      assert(commonVehicleTypeItem.value ==
+          '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
+      assert(commonVehicleTypeItem.annotation != null);
+      assert(commonVehicleTypeItem.hasPlaceholders);
+      assert(commonVehicleTypeItem.hasPlurals == false);
+      assert(commonVehicleTypeItem.hasSelects);
+      final commonVehicleTypeItemVehicleTypePlaceholder =
+          commonVehicleTypeItem.findPlaceholderByKey('vehicleType')!;
+      assert(commonVehicleTypeItemVehicleTypePlaceholder.format == null);
+      assert(commonVehicleTypeItemVehicleTypePlaceholder.type == null);
+      assert(commonVehicleTypeItemVehicleTypePlaceholder.example == null);
+      final commonVehicleTypeItemVehicleTypeSelect =
+          commonVehicleTypeItem.findSelectByKey('vehicleType')!;
+      assert(commonVehicleTypeItemVehicleTypeSelect.fullText ==
+          '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
+      assert(commonVehicleTypeItemVehicleTypeSelect.options.length == 4);
+      assert(commonVehicleTypeItemVehicleTypeSelect
+              .findOptionByKey('sedan')!
+              .text ==
+          'Sedan');
+      assert(commonVehicleTypeItemVehicleTypeSelect
+              .findOptionByKey('cabriolet')!
+              .text ==
+          'Solid roof cabriolet');
+      assert(commonVehicleTypeItemVehicleTypeSelect
+              .findOptionByKey('truck')!
+              .text ==
+          '16 wheel truck');
+      assert(commonVehicleTypeItemVehicleTypeSelect
+              .findOptionByKey('other')!
+              .text ==
+          'Other');
+
+      final complexItem = arbContent.findItemByKey('complexEntry')!;
+      assert(complexItem.value ==
+          'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}');
+      assert(complexItem.annotation != null);
+      assert(complexItem.hasPlaceholders);
+      assert(complexItem.hasPlurals);
+      assert(complexItem.hasSelects);
+      final complexItemVehicleTypeSelect =
+          complexItem.findSelectByKey('vehicleType')!;
+      assert(complexItemVehicleTypeSelect.fullText ==
+          '{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}');
+      assert(complexItemVehicleTypeSelect.options.length == 4);
+      assert(complexItemVehicleTypeSelect.findOptionByKey('sedan')!.text ==
+          'Sedan');
+      assert(complexItemVehicleTypeSelect.findOptionByKey('cabriolet')!.text ==
+          'Solid roof cabriolet');
+      assert(complexItemVehicleTypeSelect.findOptionByKey('truck')!.text ==
+          '16 wheel truck');
+      assert(complexItemVehicleTypeSelect.findOptionByKey('other')!.text ==
+          'Other');
+      final complexItemCountPlural = complexItem.findPluralByKey('count')!;
+      assert(complexItemCountPlural.fullText ==
+          '{count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}');
+      assert(complexItemCountPlural.options.length == 3);
+      assert(complexItemCountPlural.findOptionByKey('zero')!.text ==
+          'no new messages');
+      assert(complexItemCountPlural.findOptionByKey('one')!.text ==
+          '1 new message');
+      assert(complexItemCountPlural.findOptionByKey('other')!.text ==
+          '{count} new messages');
+    });
   });
 
   group('translations', () {

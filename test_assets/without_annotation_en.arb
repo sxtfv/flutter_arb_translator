@@ -1,0 +1,21 @@
+{
+  "@@locale" : "en",
+
+  "appName" : "Demo app",
+
+  "pageLoginUsername" : "Your username",
+  "@pageLoginUsername" : {},
+
+  "pageLoginPassword" : "Your password",
+  "@pageLoginPassword" : {},
+
+  "pageHomeTitle" : "Welcome {firstName}",
+
+  "pageHomeInboxCount" : "{count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}",
+
+  "pageHomeBirthday": "{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}",
+
+  "commonVehicleType": "{vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}",
+
+  "complexEntry": "Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}"
+}

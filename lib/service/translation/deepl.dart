@@ -39,7 +39,7 @@ class DeepLTranslationService extends AbstractTranslationService
     final apiResult = await _httpClient.post<_DeepLTranslation>(
       path: 'v2/translate',
       headers: {
-        'Authorization': 'DeepL-Auth-Key $apiKey'
+        'Authorization': 'DeepL-Auth-Key $apiKey',
       },
       parameters: {
         'source_lang': sourceLanguage,
@@ -84,7 +84,7 @@ class DeepLTranslationService extends AbstractTranslationService
     final apiResult = await _httpClient.post<_DeepLTranslation>(
       path: 'v2/translate?$parametersStr',
       headers: {
-        'Authorization': 'DeepL-Auth-Key $apiKey'
+        'Authorization': 'DeepL-Auth-Key $apiKey',
       },
       decoder: (response) => _decodeTranslationJson(response.body),
       body: {},

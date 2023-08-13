@@ -112,6 +112,38 @@ class ARBParser {
       );
     }
 
+    for (final item in items.values) {
+      if (item.annotation != null) {
+        continue;
+      }
+
+      final allSpecialData = [...item.plurals, ...item.selects];
+      final textWithoutSpecialData = _getTextWithoutSpecialData(
+        item.value,
+        allSpecialData,
+      );
+
+      final shouldContainAnnotation = item.hasPlurals ||
+          item.hasSelects ||
+          _hasCorrectOpenCloseCurlyBraces(textWithoutSpecialData);
+
+      if (!shouldContainAnnotation) {
+        continue;
+      }
+
+      final allPlaceholders =
+          _parsePlaceholdersFromText(textWithoutSpecialData);
+
+      final arbAnnotation = ARBItemAnnotation.fromData(
+        allSpecialData,
+        allPlaceholders,
+      );
+
+      items[item.key] = item.cloneWith(
+        annotation: arbAnnotation,
+      );
+    }
+
     return ARBContent(
       items.values.toList(),
       locale: locale,
@@ -171,5 +203,66 @@ class ARBParser {
     final tokenStartIndex = str.indexOf(_selectToken);
     final anythingBefore = str.substring(0, tokenStartIndex);
     return anythingBefore.lastIndexOf('{');
+  }
+
+  bool _hasCorrectOpenCloseCurlyBraces(String str) {
+    int openCount = 0;
+    bool hasCurlyBraces = false;
+
+    for (int i = 0; i < str.length; i++) {
+      final ch = str[i];
+
+      if (ch == '{') {
+        openCount++;
+        hasCurlyBraces = true;
+      } else if (ch == '}') {
+        openCount--;
+        hasCurlyBraces = true;
+      }
+    }
+
+    return hasCurlyBraces && openCount == 0;
+  }
+
+  String _getTextWithoutSpecialData(
+    String text,
+    Iterable<ARBItemSpecialData> specialData,
+  ) {
+    if (specialData.isEmpty) {
+      return text;
+    }
+
+    String clearText = text;
+
+    for (final item in specialData) {
+      clearText = clearText.replaceAll(item.fullText, '');
+    }
+
+    return clearText;
+  }
+
+  List<String> _parsePlaceholdersFromText(String text) {
+    final bracketIndexes = <int>[];
+
+    for (int i = 0; i < text.length; i++) {
+      final ch = text[i];
+
+      if (ch == '{' && i <= text.length - 2 && text[i + 1] != '{') {
+        bracketIndexes.add(i);
+      }
+    }
+
+    if (bracketIndexes.isEmpty) {
+      return [];
+    }
+
+    final result = <String>[];
+    for (final startIx in bracketIndexes) {
+      final endIndex = text.getClosingBracketIndex(startIx);
+      final placeholder = text.substring(startIx + 1, endIndex);
+      result.add(placeholder);
+    }
+
+    return result;
   }
 }

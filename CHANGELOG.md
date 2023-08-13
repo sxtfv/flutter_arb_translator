@@ -1,3 +1,7 @@
+## 1.0.9 (13th Aug 2023)
+
+- Add annotation autogen
+
 ## 1.0.8 (8th Aug 2023)
 
 - Fix missing DeepL Authorization header

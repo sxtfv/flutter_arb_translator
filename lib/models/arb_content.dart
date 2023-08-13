@@ -120,10 +120,12 @@ class ARBItem {
 class ARBItemAnnotation {
   final String? description;
   final List<ARBItemAnnotationPlaceholder> placeholders;
+  final bool isAutoGen;
 
   const ARBItemAnnotation({
     this.description,
     this.placeholders = const [],
+    this.isAutoGen = false,
   });
 
   bool get hasPlaceholders => placeholders.isNotEmpty;
@@ -143,6 +145,25 @@ class ARBItemAnnotation {
     return ARBItemAnnotation(
       description: json.containsKey('description') ? json['description'] : null,
       placeholders: placeholders,
+      isAutoGen: false,
+    );
+  }
+
+  factory ARBItemAnnotation.fromData(
+    Iterable<ARBItemSpecialData> data,
+    List<String> parsedPlaceholders,
+  ) {
+    final placeholders =
+        data.map((x) => ARBItemAnnotationPlaceholder.fromData(x)).toList();
+
+    for (final placeholder in parsedPlaceholders) {
+      placeholders.add(ARBItemAnnotationPlaceholder.fromKey(placeholder));
+    }
+
+    return ARBItemAnnotation(
+      description: '',
+      placeholders: placeholders,
+      isAutoGen: true,
     );
   }
 }
@@ -182,6 +203,14 @@ class ARBItemAnnotationPlaceholder {
       example: json.lookup('example'),
       format: json.lookup('format'),
     );
+  }
+
+  factory ARBItemAnnotationPlaceholder.fromData(ARBItemSpecialData data) {
+    return ARBItemAnnotationPlaceholder(key: data.key);
+  }
+
+  factory ARBItemAnnotationPlaceholder.fromKey(String key) {
+    return ARBItemAnnotationPlaceholder(key: key);
   }
 }
 
