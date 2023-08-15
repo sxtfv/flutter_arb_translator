@@ -1325,4 +1325,66 @@ void main() {
           resultItalian.findItemByKey('third_item')?.value == 'Terzo elemento');
     });
   });
+
+  group('github issues', () {
+    final allTranslators = [
+      FakeTranslationService(),
+      FakeTranslationServiceSupportsBulkTranslationToMultipleTargets(),
+      FakeTranslationServiceSupportsBulkTranslationToSingleTarget(),
+      FakeTranslationServiceSupportsTranslationToMultipleTargets(),
+    ];
+
+    // https://github.com/sxtfv/flutter_arb_translator/issues/6
+    test('issue #6', () async {
+      final sampleFilePathWithoutAnnotation =
+          path.absolute('test_assets/empty_strings_en.arb');
+
+      final parser = ARBParser(
+        logger: Logger<ARBParser>(logLevel),
+      );
+
+      final arbContent = parser.parse(sampleFilePathWithoutAnnotation);
+
+      for (final translator in allTranslators) {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: translator,
+          arb: arbContent,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['de'],
+          existFiles: {},
+        );
+
+        final applier = ARBTranslationApplier(
+          original: arbContent,
+          originalLocale: 'en',
+          translationTargets: ['de'],
+          translations: translation,
+          originals: {'en': arbContent},
+          logger: Logger<ARBTranslationApplier>(logLevel),
+        );
+
+        final applying = TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+
+        while (applier.canMoveNext) {
+          applier.processCurrentChange(applying);
+          applier.moveNext();
+        }
+
+        final result = applier.getResults();
+        final resultDe = result['de']!;
+
+        assert(resultDe.findItemByKey('findTitle')!.value.isEmpty);
+        assert(resultDe.findItemByKey('findTopMsg')!.value.isEmpty);
+        assert(resultDe.findItemByKey('findBottomMsg')!.value.isEmpty);
+        assert(resultDe.findItemByKey('capacityInfo')!.value ==
+            '{capacities} {childBeds, plural, zero{} other{[de] Child beds: {childBeds}}}');
+      }
+    });
+  });
 }

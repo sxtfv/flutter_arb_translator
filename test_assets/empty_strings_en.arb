@@ -1,0 +1,6 @@
+{
+  "findTitle": "",
+  "findTopMsg": "",
+  "findBottomMsg": "",
+  "capacityInfo": "{capacities} {childBeds, plural, zero{} other{Child beds: {childBeds}}}"
+}

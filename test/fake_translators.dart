@@ -9,6 +9,10 @@ class FakeTranslationService implements AbstractTranslationService {
     String sourceLanguage,
     String target,
   ) {
+    if (source.isEmpty) {
+      throw 'Source is empty';
+    }
+
     return Future.value('[$target] $source');
   }
 }
@@ -21,6 +25,10 @@ class FakeTranslationServiceSupportsTranslationToMultipleTargets
     String sourceLanguage,
     List<String> targets,
   ) {
+    if (source.isEmpty) {
+      throw 'Source is empty';
+    }
+
     final translations =
         targets.map((x) => MapEntry(x, '[$x] $source')).toMap();
 
@@ -39,6 +47,12 @@ class FakeTranslationServiceSupportsBulkTranslationToSingleTarget
     String sourceLanguage,
     String target,
   ) {
+    for (final source in sources) {
+      if (source.isEmpty) {
+        throw 'Source is empty';
+      }
+    }
+
     return Future.value(sources.map((x) => '[$target] $x').toList());
   }
 }
@@ -53,6 +67,10 @@ class FakeTranslationServiceSupportsBulkTranslationToMultipleTargets
   ) {
     List<Translation> result = [];
     for (final source in sources) {
+      if (source.isEmpty) {
+        throw 'Source is empty';
+      }
+
       final translations =
           targets.map((x) => MapEntry(x, '[$x] $source')).toMap();
       result.add(Translation(

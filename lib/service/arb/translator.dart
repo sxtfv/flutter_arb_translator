@@ -496,10 +496,22 @@ class _ARBTranslatorSupportsBulkTranslationToMultipleTargets
 
     final keys = candidates.keys.toList();
     final targets = candidates.values.selectMany((x) => x).toSet().toList();
-    final items = keys.map((x) => arb.findItemByKey(x)!).toList();
+    final items = keys.map((x) => arb.findItemByKey(x)!).toList(
+          growable: false,
+        );
     logger.info('translate bulk ${candidates.length} items to $targets');
+    final toTranslateItems = <ARBItem>[];
 
-    for (final pack in items.pack(10)) {
+    for (final item in items) {
+      final clearItem = _ARBItemWithClearText.fromArbItem(item);
+      if (clearItem.clearText.isEmpty) {
+        _processEmptyItem(result, item, clearItem, targets, existFiles);
+      } else {
+        toTranslateItems.add(item);
+      }
+    }
+
+    for (final pack in toTranslateItems.pack(10)) {
       final clearItems = pack.map(_ARBItemWithClearText.fromArbItem).toList();
       final texts = clearItems.map((x) => x.clearText).toList();
 
@@ -596,6 +608,49 @@ class _ARBTranslatorSupportsBulkTranslationToMultipleTargets
     return result;
   }
 
+  void _processEmptyItem(
+    Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> result,
+    ARBItem item,
+    _ARBItemWithClearText clearItem,
+    List<LanguageCode> targets,
+    Map<LanguageCode, ARBContent?> existFiles,
+  ) {
+    result[item.key] = {};
+
+    for (final target in targets) {
+      final newItem = _ARBItemWithClearText(
+        key: item.key,
+        number: item.number,
+        annotation: item.annotation,
+        clearText: '',
+        placeholderReplacements: clearItem.placeholderReplacements,
+        pluralReplacements: clearItem.pluralReplacements,
+        selectReplacements: clearItem.selectReplacements,
+      ).toArbItem();
+
+      final existItem = existFiles.lookup(target)?.findItemByKey(newItem.key);
+
+      result[item.key]![target] = existItem == null
+          ? ARBItemTranslated.added(
+              key: newItem.key,
+              number: newItem.number,
+              value: newItem.value,
+              annotation: newItem.annotation,
+              plurals: newItem.plurals,
+              selects: newItem.selects,
+            )
+          : ARBItemTranslated.edited(
+              key: newItem.key,
+              number: newItem.number,
+              value: newItem.value,
+              originalValue: existItem.value,
+              annotation: newItem.annotation,
+              plurals: newItem.plurals,
+              selects: newItem.selects,
+            );
+    }
+  }
+
   Future<Map<String, Map<LanguageCode, ARBItemSpecialData>>>
       _translateSpecialDataReplacement(
     _ARBItemWithClearText item,
@@ -616,13 +671,37 @@ class _ARBTranslatorSupportsBulkTranslationToMultipleTargets
           .map((x) => MapEntry(x, x.originalText))
           .toMap();
 
+      final emptyOptions =
+          optionTextsClear.keys.where((x) => x.clearText.isEmpty).toList();
+
       final optionTranslations = await translationSvc.translateBulk(
-        optionTextsClear.keys.map((x) => x.clearText).toList(),
+        optionTextsClear.keys
+            .where((x) => !emptyOptions.contains(x))
+            .map((x) => x.clearText)
+            .toList(),
         sourceLanguage,
         targets,
       );
 
       Map<LanguageCode, List<ARBItemSpecialDataOption>> translatedOptions = {};
+
+      for (final key in emptyOptions) {
+        final option =
+            options.firstWhere((x) => x.text == optionTextsClear[key]!);
+
+        for (final target in targets) {
+          if (!translatedOptions.containsKey(target)) {
+            translatedOptions[target] = [];
+          }
+
+          translatedOptions[target]!.add(
+            ARBItemSpecialDataOption(
+              option.key,
+              key.restorePlaceholders(''),
+            ),
+          );
+        }
+      }
 
       for (final optionTranslation in optionTranslations) {
         final clearKey = optionTextsClear.keys
@@ -690,10 +769,23 @@ class _ARBTranslatorSupportsBulkTranslationToSingleTarget
 
     final keys = candidates.keys.toList();
     final targets = candidates.values.selectMany((x) => x).toSet().toList();
-    final items = keys.map((x) => arb.findItemByKey(x)!).toList();
+    final items = keys.map((x) => arb.findItemByKey(x)!).toList(
+          growable: false,
+        );
     logger.info('translate $keys to $targets by single lang');
 
-    final packs = items.pack(10);
+    final toTranslateItems = <ARBItem>[];
+
+    for (final item in items) {
+      final clearItem = _ARBItemWithClearText.fromArbItem(item);
+      if (clearItem.clearText.isEmpty) {
+        _processEmptyItem(result, item, clearItem, targets, existFiles);
+      } else {
+        toTranslateItems.add(item);
+      }
+    }
+
+    final packs = toTranslateItems.pack(10);
     for (final target in targets) {
       for (int i = 0; i < packs.length; i++) {
         final pack = packs[i];
@@ -780,6 +872,49 @@ class _ARBTranslatorSupportsBulkTranslationToSingleTarget
     return result;
   }
 
+  void _processEmptyItem(
+    Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> result,
+    ARBItem item,
+    _ARBItemWithClearText clearItem,
+    List<LanguageCode> targets,
+    Map<LanguageCode, ARBContent?> existFiles,
+  ) {
+    result[item.key] = {};
+
+    for (final target in targets) {
+      final newItem = _ARBItemWithClearText(
+        key: item.key,
+        number: item.number,
+        annotation: item.annotation,
+        clearText: '',
+        placeholderReplacements: clearItem.placeholderReplacements,
+        pluralReplacements: clearItem.pluralReplacements,
+        selectReplacements: clearItem.selectReplacements,
+      ).toArbItem();
+
+      final existItem = existFiles.lookup(target)?.findItemByKey(newItem.key);
+
+      result[item.key]![target] = existItem == null
+          ? ARBItemTranslated.added(
+              key: newItem.key,
+              number: newItem.number,
+              value: newItem.value,
+              annotation: newItem.annotation,
+              plurals: newItem.plurals,
+              selects: newItem.selects,
+            )
+          : ARBItemTranslated.edited(
+              key: newItem.key,
+              number: newItem.number,
+              value: newItem.value,
+              originalValue: existItem.value,
+              annotation: newItem.annotation,
+              plurals: newItem.plurals,
+              selects: newItem.selects,
+            );
+    }
+  }
+
   Future<Map<String, ARBItemSpecialData>> _translateItemSpecialDataReplacement(
     _ARBItemWithClearText item,
     Map<String, ARBItemSpecialData> specialDataReplacement,
@@ -799,7 +934,13 @@ class _ARBTranslatorSupportsBulkTranslationToSingleTarget
           .map((x) => MapEntry(x, x.originalText))
           .toMap();
 
-      final clearTexts = optionTextsClear.keys.map((x) => x.clearText).toList();
+      final emptyOptions =
+          optionTextsClear.keys.where((x) => x.clearText.isEmpty).toList();
+
+      final clearTexts = optionTextsClear.keys
+          .where((x) => !emptyOptions.contains(x))
+          .map((x) => x.clearText)
+          .toList();
 
       final optionTranslations =
           await translationSvc.translateBulkToSingleTarget(
@@ -809,6 +950,18 @@ class _ARBTranslatorSupportsBulkTranslationToSingleTarget
       );
 
       List<ARBItemSpecialDataOption> translatedOptions = [];
+
+      for (final key in emptyOptions) {
+        final option =
+            options.firstWhere((x) => x.text == optionTextsClear[key]!);
+
+        translatedOptions.add(
+          ARBItemSpecialDataOption(
+            option.key,
+            key.restorePlaceholders(''),
+          ),
+        );
+      }
 
       for (int i = 0; i < optionTranslations.length; i++) {
         final translation = optionTranslations[i];
@@ -875,18 +1028,20 @@ class _ARBTranslatorSupportsSingleTranslationToTargetsList
       final itemTargets = candidates.lookup(item.key)!;
       logger.info('Translate ${item.key} to $itemTargets');
 
-      final itemTextTranslation = item.isClearTextContainsOnlyPlaceholders()
-          ? Translation(
-              source: item.clearText,
-              sourceLanguage: sourceLanguage,
-              translations:
-                  itemTargets.map((x) => MapEntry(x, item.clearText)).toMap(),
-            )
-          : await translationSvc.translateToTargetsList(
-              item.clearText,
-              sourceLanguage,
-              itemTargets,
-            );
+      final itemTextTranslation =
+          item.isClearTextContainsOnlyPlaceholders() || item.clearText.isEmpty
+              ? Translation(
+                  source: item.clearText,
+                  sourceLanguage: sourceLanguage,
+                  translations: itemTargets
+                      .map((x) => MapEntry(x, item.clearText))
+                      .toMap(),
+                )
+              : await translationSvc.translateToTargetsList(
+                  item.clearText,
+                  sourceLanguage,
+                  itemTargets,
+                );
 
       final translatedSelectReplacements =
           await _translateItemSpecialDataReplacement(
@@ -983,6 +1138,14 @@ class _ARBTranslatorSupportsSingleTranslationToTargetsList
 
       List<Translation> optionTranslations = [];
       for (final optionClearText in clearTexts) {
+        if (optionClearText.isEmpty) {
+          optionTranslations.add(Translation.forEmptySource(
+            sourceLanguage,
+            targets,
+          ));
+          continue;
+        }
+
         final translation = await translationSvc.translateToTargetsList(
           optionClearText,
           sourceLanguage,
@@ -1062,18 +1225,20 @@ class _SlowestARBTranslator extends ARBTranslator {
       final itemTargets = candidates.lookup(item.key)!;
       logger.info('Translate ${item.key} to $itemTargets');
 
-      final itemTextTranslation = item.isClearTextContainsOnlyPlaceholders()
-          ? Translation(
-              source: item.clearText,
-              sourceLanguage: sourceLanguage,
-              translations:
-                  itemTargets.map((x) => MapEntry(x, item.clearText)).toMap(),
-            )
-          : await _translateText(
-              item.clearText,
-              sourceLanguage,
-              itemTargets,
-            );
+      final itemTextTranslation =
+          item.isClearTextContainsOnlyPlaceholders() || item.clearText.isEmpty
+              ? Translation(
+                  source: item.clearText,
+                  sourceLanguage: sourceLanguage,
+                  translations: itemTargets
+                      .map((x) => MapEntry(x, item.clearText))
+                      .toMap(),
+                )
+              : await _translateText(
+                  item.clearText,
+                  sourceLanguage,
+                  itemTargets,
+                );
 
       final translatedSelectReplacements =
           await _translateItemSpecialDataReplacement(
@@ -1170,6 +1335,14 @@ class _SlowestARBTranslator extends ARBTranslator {
 
       List<Translation> optionTranslations = [];
       for (final optionClearText in clearTexts) {
+        if (optionClearText.isEmpty) {
+          optionTranslations.add(Translation.forEmptySource(
+            sourceLanguage,
+            targets,
+          ));
+          continue;
+        }
+
         final translation = await _translateText(
           optionClearText,
           sourceLanguage,

@@ -1,3 +1,7 @@
+## 1.0.10 (15th Aug 2023)
+
+- Fix empty string translations & URL encode text for DeepL translations
+
 ## 1.0.9 (13th Aug 2023)
 
 - Add annotation autogen

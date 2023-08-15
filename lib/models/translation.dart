@@ -1,5 +1,7 @@
 import 'types.dart';
 
+import '../utils/extensions.dart';
+
 /// Translation model
 /// [source] - original text which was translated
 /// [sourceLanguage] - language from which [source] was translated
@@ -14,4 +16,15 @@ class Translation {
     required this.sourceLanguage,
     required this.translations,
   });
+
+  factory Translation.forEmptySource(
+    String sourceLanguage,
+    List<String> targets,
+  ) {
+    return Translation(
+      sourceLanguage: sourceLanguage,
+      source: '',
+      translations: targets.map((x) => MapEntry(x, '')).toMap(),
+    );
+  }
 }

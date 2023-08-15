@@ -22,6 +22,7 @@ class DeepLTranslationService extends AbstractTranslationService
     required this.logger,
   }) : _httpClient = HttpClient(
           baseUrl: url,
+          logger: logger,
         );
 
   /// Translates given text to specified language
@@ -44,7 +45,7 @@ class DeepLTranslationService extends AbstractTranslationService
       parameters: {
         'source_lang': sourceLanguage,
         'target_lang': target,
-        'text': source,
+        'text': Uri.encodeComponent(source),
       },
       decoder: (response) => _decodeTranslationJson(response.body),
       body: {},
@@ -75,7 +76,7 @@ class DeepLTranslationService extends AbstractTranslationService
     parameters.add(MapEntry('source_lang', sourceLanguage));
     parameters.add(MapEntry('target_lang', target));
     for (final source in sources) {
-      parameters.add(MapEntry('text', source));
+      parameters.add(MapEntry('text', Uri.encodeComponent(source)));
     }
 
     final parametersStr =

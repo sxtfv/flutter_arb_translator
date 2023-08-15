@@ -83,6 +83,8 @@ class HttpClient {
         body: jsonEncode(body),
       );
 
+      logger?.info('HTTP POST $requestUrl RESPONSE: ${httpResponse.body}');
+
       if (httpResponse.statusCode != 200) {
         throw Exception('${httpResponse.statusCode} ${httpResponse.body}');
       }
