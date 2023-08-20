@@ -13,6 +13,7 @@ import 'package:flutter_arb_translator/service/arb/translator.dart';
 import 'package:flutter_arb_translator/models/arb_content.dart';
 import 'package:flutter_arb_translator/models/arb_content_translated.dart';
 import 'package:flutter_arb_translator/models/translation_applying.dart';
+import 'package:flutter_arb_translator/models/translation_options.dart';
 
 import 'fake_translators.dart';
 
@@ -826,6 +827,10 @@ void main() {
         ),
       ], locale: 'it');
 
+      final translationOptions = TranslationOptions.createDefault().withKeys(
+        ['hello_world_2'],
+      );
+
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
           translationSvc: svc,
@@ -840,7 +845,7 @@ void main() {
             'es': arbSpanish,
             'it': arbItalian,
           },
-          keys: ['hello_world_2'],
+          options: translationOptions,
         );
 
         final translationItalian = translation['it']!;
@@ -916,6 +921,11 @@ void main() {
         ),
       ], locale: 'it');
 
+      final translationOptions =
+          TranslationOptions.createDefault().withIgnoreKeys(
+        ['hello_world_1'],
+      );
+
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
           translationSvc: svc,
@@ -930,7 +940,7 @@ void main() {
             'es': arbSpanish,
             'it': arbItaly,
           },
-          ignoreKeys: ['hello_world_1'],
+          options: translationOptions,
         );
 
         final translationItaly = translation['it']!;
@@ -1006,6 +1016,10 @@ void main() {
         ),
       ], locale: 'it');
 
+      final translationOptions = TranslationOptions.createDefault().withFlags(
+        overrideExist: true,
+      );
+
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
           translationSvc: svc,
@@ -1020,7 +1034,7 @@ void main() {
             'es': arbSpanish,
             'it': arbItaly,
           },
-          overrideExistEntries: true,
+          options: translationOptions,
         );
 
         final translationItaly = translation['it']!;
@@ -1384,6 +1398,88 @@ void main() {
         assert(resultDe.findItemByKey('findBottomMsg')!.value.isEmpty);
         assert(resultDe.findItemByKey('capacityInfo')!.value ==
             '{capacities} {childBeds, plural, zero{} other{[de] Child beds: {childBeds}}}');
+      }
+    });
+
+    // https://github.com/sxtfv/flutter_arb_translator/issues/7
+    test(
+        'issue #7 - when tgt contains equal string and option enabled should translate',
+        () async {
+      final sourceARB = path.absolute('test_assets/equal_strings_en.arb');
+
+      final deARB = path.absolute('test_assets/equal_strings_de.arb');
+
+      const translationOptions = TranslationOptions(
+        translateEqualToSource: true,
+      );
+
+      final parser = ARBParser(
+        logger: Logger<ARBParser>(logLevel),
+      );
+
+      final sourceARBContent = parser.parse(sourceARB);
+      final deARBContent = parser.parse(deARB);
+
+      assert(sourceARBContent.items.length == deARBContent.items.length);
+      assert(sourceARBContent.findItemByKey('appName')!.value ==
+          deARBContent.findItemByKey('appName')!.value);
+      assert(sourceARBContent.findItemByKey('pageLoginUsername')!.value !=
+          deARBContent.findItemByKey('pageLoginUsername')!.value);
+      assert(sourceARBContent.findItemByKey('pageLoginPassword')!.value !=
+          deARBContent.findItemByKey('pageLoginPassword')!.value);
+      assert(sourceARBContent.findItemByKey('pageHomeTitle')!.value ==
+          deARBContent.findItemByKey('pageHomeTitle')!.value);
+      assert(sourceARBContent.findItemByKey('pageHomeInboxCount')!.value ==
+          deARBContent.findItemByKey('pageHomeInboxCount')!.value);
+
+      for (final translator in allTranslators) {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: translator,
+          arb: sourceARBContent,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['de'],
+          existFiles: {
+            'de': deARBContent,
+          },
+          options: translationOptions,
+        );
+
+        final applier = ARBTranslationApplier(
+          original: sourceARBContent,
+          originalLocale: 'en',
+          translationTargets: ['de'],
+          translations: translation,
+          originals: {'en': sourceARBContent, 'de': deARBContent},
+          logger: Logger<ARBTranslationApplier>(logLevel),
+        );
+
+        final applying = TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+
+        while (applier.canMoveNext) {
+          applier.processCurrentChange(applying);
+          applier.moveNext();
+        }
+
+        final result = applier.getResults();
+        final resultDe = result['de']!;
+
+        assert(resultDe.items.length == 5);
+
+        assert(resultDe.findItemByKey('appName')!.value == '[de] Demo app');
+        assert(resultDe.findItemByKey('pageLoginUsername')!.value ==
+            '[de] Your username');
+        assert(resultDe.findItemByKey('pageLoginPassword')!.value ==
+            '[de] Your password');
+        assert(resultDe.findItemByKey('pageHomeTitle')!.value ==
+            '[de] Welcome {firstName}');
+        assert(resultDe.findItemByKey('pageHomeInboxCount')!.value ==
+            '{count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
       }
     });
   });

@@ -7,6 +7,7 @@ import '../../models/types.dart';
 import '../../models/arb_content.dart';
 import '../../models/arb_content_translated.dart';
 import '../../models/translation.dart';
+import '../../models/translation_options.dart';
 
 /// Used to split ARB items to sets of items which should be translated
 /// to specific languages and items which should be unmodified
@@ -275,17 +276,11 @@ abstract class ARBTranslator {
   /// Returns Map of translated ARB to given [languages]
   /// [existFiles] - map of exist translations (exist entries can be skipped
   /// from translation
-  /// [overrideExistEntries] if true, exist entries in [existFiles] will be
-  /// replaced with new translation, otherwise they will be ignored
-  /// [keys] list of ARB items keys which only should be translated (other will
-  /// be ignored)
-  /// [ignoreKeys] list of ARB items keys which should be not translated
+  /// [options] - a set of flags/keys which customize translation of given file
   Future<Map<LanguageCode, ARBContentTranslated>> translate({
     required List<LanguageCode> languages,
     required Map<LanguageCode, ARBContent?> existFiles,
-    bool overrideExistEntries = false,
-    List<ARBItemKey>? keys,
-    List<ARBItemKey>? ignoreKeys,
+    TranslationOptions? options,
   }) async {
     logger.trace('Started translation from $sourceLanguage to $languages');
     logger.trace('Total entries count: ${arb.items.length}');
@@ -293,9 +288,7 @@ abstract class ARBTranslator {
     final preparedTranslationData = _prepareTranslations(
       languages,
       existFiles,
-      keys,
-      ignoreKeys,
-      overrideExistEntries: overrideExistEntries,
+      options,
     );
 
     logger.trace(
@@ -328,12 +321,15 @@ abstract class ARBTranslator {
   _PreparedTranslationData _prepareTranslations(
     List<LanguageCode> languages,
     Map<LanguageCode, ARBContent?> existFiles,
-    List<ARBItemKey>? keys,
-    List<ARBItemKey>? ignoreKeys, {
-    bool overrideExistEntries = false,
-  }) {
+    TranslationOptions? options,
+  ) {
     Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> unmodified = {};
     Map<ARBItemKey, List<LanguageCode>> candidates = {};
+    final translationOptions = options ?? TranslationOptions.createDefault();
+    final keys = translationOptions.keys;
+    final ignoreKeys = translationOptions.ignoreKeys;
+    final overrideExistEntries = translationOptions.overrideExistEntries;
+    final translateEqual = translationOptions.translateEqualToSource;
 
     for (final arbItem in arb.items) {
       unmodified[arbItem.key] = {};
@@ -376,16 +372,20 @@ abstract class ARBTranslator {
           continue;
         }
 
-        unmodified[arbItem.key]![target] = ARBItemTranslated.unmodified(
-          existTranslation,
-          number: arbItem.number,
-          annotation1: arbItem.annotation,
-          selects1: arbItem.selects,
-          plurals1: arbItem.plurals,
-        );
+        if (translateEqual && existTranslation.value == arbItem.value) {
+          candidates[arbItem.key]!.add(target);
+        } else {
+          unmodified[arbItem.key]![target] = ARBItemTranslated.unmodified(
+            existTranslation,
+            number: arbItem.number,
+            annotation1: arbItem.annotation,
+            selects1: arbItem.selects,
+            plurals1: arbItem.plurals,
+          );
 
-        targets.removeAt(i);
-        i--;
+          targets.removeAt(i);
+          i--;
+        }
       }
 
       if (targets.isEmpty) {

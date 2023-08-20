@@ -1,3 +1,7 @@
+## 1.0.11 (20th Aug 2023)
+
+- Add command line argument which enables translation of entries which are equal between target and source ARB files
+
 ## 1.0.10 (15th Aug 2023)
 
 - Fix empty string translations & URL encode text for DeepL translations

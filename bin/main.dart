@@ -12,6 +12,7 @@ import 'package:flutter_arb_translator/service/log/logger.dart';
 import 'package:flutter_arb_translator/service/arb/translation_applier.dart';
 import 'package:flutter_arb_translator/models/translation_applying.dart';
 import 'package:flutter_arb_translator/models/arb_content.dart';
+import 'package:flutter_arb_translator/models/translation_options.dart';
 import 'package:flutter_arb_translator/utils/extensions.dart';
 
 const logLevel = LogLevel.production;
@@ -29,10 +30,10 @@ void main(List<String> arguments) async {
   final serviceName = args[_ArgsNames.service] as String?;
   final from = args[_ArgsNames.from] as String?;
   final to = args[_ArgsNames.to] as List<String>;
-  final keys = args[_ArgsNames.key] as List<String>;
-  final ignoreKeys = args[_ArgsNames.ignoreKeys] as List<String>;
-  final override = args[_ArgsNames.override] as bool;
-  bool interactive = args[_ArgsNames.interactive] as bool;
+  final interactive = args[_ArgsNames.interactive] as bool;
+  final translationOptions = _createTranslationOptions(
+    args,
+  );
 
   if (to.contains(from)) {
     to.remove(from);
@@ -141,9 +142,7 @@ void main(List<String> arguments) async {
   final translations = await arbTranslator.translate(
     languages: to,
     existFiles: existFiles,
-    keys: keys.isEmpty ? null : keys,
-    ignoreKeys: ignoreKeys.isEmpty ? null : ignoreKeys,
-    overrideExistEntries: override,
+    options: translationOptions,
   );
 
   final applier = ARBTranslationApplier(
@@ -261,7 +260,45 @@ args.ArgParser _initArgsParser() {
     defaultsTo: false,
   );
 
+  argsParser.addFlag(
+    _ArgsNames.translateEqual,
+    abbr: 'e',
+    help: _ArgsHelp.translateEqual,
+    defaultsTo: false,
+  );
+
   return argsParser;
+}
+
+TranslationOptions _createTranslationOptions(args.ArgResults args) {
+  final keys = args[_ArgsNames.key] as List<String>;
+  final ignoreKeys = args[_ArgsNames.ignoreKeys] as List<String>;
+  final override = args[_ArgsNames.override] as bool;
+  final translateEqual = args[_ArgsNames.translateEqual] as bool;
+
+  var result = TranslationOptions.createDefault();
+
+  if (override) {
+    result = result.withFlags(
+      overrideExist: override,
+    );
+  }
+
+  if (translateEqual) {
+    result = result.withFlags(
+      translateEqual: translateEqual,
+    );
+  }
+
+  if (keys.isNotEmpty) {
+    result = result.withKeys(keys);
+  }
+
+  if (ignoreKeys.isNotEmpty) {
+    result = result.withIgnoreKeys(ignoreKeys);
+  }
+
+  return result;
 }
 
 class _ArgsNames {
@@ -274,6 +311,7 @@ class _ArgsNames {
   static const override = 'override';
   static const help = 'help';
   static const interactive = 'interactive';
+  static const translateEqual = 'translate-equal';
 }
 
 class _ArgsHelp {
@@ -293,4 +331,7 @@ class _ArgsHelp {
       ' Otherwise, they will be not modified';
   static const help = 'Print usage instructions';
   static const interactive = 'You will be prompted before applying translation';
+  static const translateEqual = 'If true and if ARB file with defined target '
+      'language contains item with the same value as source ARB file it will '
+      'be translated';
 }

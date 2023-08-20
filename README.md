@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.10
+  flutter_arb_translator: ^1.0.11
 ```
 
 # Example
@@ -170,13 +170,14 @@ flutter pub run flutter_arb_translator:main --from en --to es --to it --service 
 When command will complete, it will write `lib/l10n/app_es.arb` and `lib/l10n/app_it.arb` files containing translation. That's it, if you want to see all available options type `flutter pub run flutter_arb_translator:main -h`
 
 ### Command Line Options
-Option       | Description
--------------| -------------
-dir          | (optional) Directory containing .arb files. By default it is set to `lib/l10n`
-service      | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`]
-from         | (required) Main language, ARB will be translated from this language to targets. Example usage: `--from en`
-to           | (required) List of languages to which ARB should be translated. At least 1 language required. Example usage: `--to es,pt` or `--to es --to pt`
-key          | (optional) If defined, only items with given keys will be translated. Example usage: `-k key1 -k key2`
-ignore       | (optional) If defined, items with given keys will be skipped from translation. Example usage: `--ignore key1,key2`
-override     | (optional) If true and if ARB file with defined target language already exist all items will be replaced with new translation. Otherwise, they will be not modified. By default it is set to `false`
-interactive  | (optional) You will be prompted before applying translation. By default it is set to `false`
+Option          | Description
+----------------| -------------
+dir             | (optional) Directory containing .arb files. By default it is set to `lib/l10n`
+service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`]
+from            | (required) Main language, ARB will be translated from this language to targets. Example usage: `--from en`
+to              | (required) List of languages to which ARB should be translated. At least 1 language required. Example usage: `--to es,pt` or `--to es --to pt`
+key             | (optional) If defined, only items with given keys will be translated. Example usage: `-k key1 -k key2`
+ignore          | (optional) If defined, items with given keys will be skipped from translation. Example usage: `--ignore key1,key2`
+override        | (optional) If true and if ARB file with defined target language already exist all items will be replaced with new translation. Otherwise, they will be not modified. By default it is set to `false`
+interactive     | (optional) You will be prompted before applying translation. By default it is set to `false`
+translate-equal | (optional) If true and if ARB file with defined target language contains entry which is equal to source ARB file entry it will be translated. By default it is set to `false`
