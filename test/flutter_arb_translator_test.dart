@@ -1431,6 +1431,9 @@ void main() {
           deARBContent.findItemByKey('pageHomeTitle')!.value);
       assert(sourceARBContent.findItemByKey('pageHomeInboxCount')!.value ==
           deARBContent.findItemByKey('pageHomeInboxCount')!.value);
+      assert(sourceARBContent.findItemByKey('emptyString')!.value.isEmpty);
+      assert(sourceARBContent.findItemByKey('emptyString')!.value ==
+          deARBContent.findItemByKey('emptyString')!.value);
 
       for (final translator in allTranslators) {
         final arbTranslator = ARBTranslator.create(
@@ -1469,7 +1472,7 @@ void main() {
         final result = applier.getResults();
         final resultDe = result['de']!;
 
-        assert(resultDe.items.length == 5);
+        assert(resultDe.items.length == 6);
 
         assert(resultDe.findItemByKey('appName')!.value == '[de] Demo app');
         assert(resultDe.findItemByKey('pageLoginUsername')!.value ==
@@ -1480,6 +1483,7 @@ void main() {
             '[de] Welcome {firstName}');
         assert(resultDe.findItemByKey('pageHomeInboxCount')!.value ==
             '{count, plural, zero{[de] You have no new messages} one{[de] You have 1 new message} other{[de] You have {count} new messages}}');
+        assert(resultDe.findItemByKey('emptyString')!.value.isEmpty);
       }
     });
   });

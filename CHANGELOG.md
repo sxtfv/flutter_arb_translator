@@ -1,3 +1,7 @@
+## 1.0.12 (22nd Aug 2023)
+
+- Fix empty string processing when detect equal ARB file entries
+
 ## 1.0.11 (20th Aug 2023)
 
 - Add command line argument which enables translation of entries which are equal between target and source ARB files

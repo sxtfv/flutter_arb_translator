@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import '../log/logger.dart';
 import '../translation/base.dart';
 
@@ -324,7 +326,7 @@ abstract class ARBTranslator {
     TranslationOptions? options,
   ) {
     Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> unmodified = {};
-    Map<ARBItemKey, List<LanguageCode>> candidates = {};
+    Map<ARBItemKey, HashSet<LanguageCode>> candidates = {};
     final translationOptions = options ?? TranslationOptions.createDefault();
     final keys = translationOptions.keys;
     final ignoreKeys = translationOptions.ignoreKeys;
@@ -333,7 +335,7 @@ abstract class ARBTranslator {
 
     for (final arbItem in arb.items) {
       unmodified[arbItem.key] = {};
-      candidates[arbItem.key] = [];
+      candidates[arbItem.key] = HashSet<String>();
 
       List<String> targets = [...languages];
       for (int i = 0; i < targets.length; i++) {
@@ -372,7 +374,9 @@ abstract class ARBTranslator {
           continue;
         }
 
-        if (translateEqual && existTranslation.value == arbItem.value) {
+        if (translateEqual &&
+            existTranslation.value == arbItem.value &&
+            arbItem.value.isNotEmpty) {
           candidates[arbItem.key]!.add(target);
         } else {
           unmodified[arbItem.key]![target] = ARBItemTranslated.unmodified(
@@ -401,7 +405,17 @@ abstract class ARBTranslator {
       }
     }
 
-    return _PreparedTranslationData(unmodified, candidates);
+    return _PreparedTranslationData(
+      unmodified,
+      candidates.map(
+        (k, v) => MapEntry(
+          k,
+          v.toList(
+            growable: false,
+          ),
+        ),
+      ),
+    );
   }
 
   Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> _mergeTranslationData(
