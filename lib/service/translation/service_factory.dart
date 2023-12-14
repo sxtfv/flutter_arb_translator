@@ -8,6 +8,7 @@ import 'azure_cognitive_services.dart';
 import 'yandex.dart';
 import 'google_cloud.dart';
 import 'deepl.dart';
+import 'amazon_translate.dart';
 
 import '../log/logger.dart';
 
@@ -18,6 +19,7 @@ enum TranslationServiceType {
   yandex,
   googleCloud,
   deepL,
+  amazonTranslate,
 }
 
 /// Creates and configures specific translation API services
@@ -51,6 +53,8 @@ class TranslationServiceFactory {
           return await _createGoogleCloudTranslator(configuration);
         case TranslationServiceType.deepL:
           return _createDeepLTranslator(configuration);
+        case TranslationServiceType.amazonTranslate:
+          return _createAmazonTranslateTranslator(configuration);
       }
     } on Exception catch (error) {
       logger.error('Failed to initialize translator service', error);
@@ -181,6 +185,40 @@ class TranslationServiceFactory {
     return DeepLTranslationService(
       url: url,
       apiKey: apiKey,
+      logger: logger,
+    );
+  }
+
+  Future<AmazonTranslateService> _createAmazonTranslateTranslator(
+    Map<String, dynamic> configuration,
+  ) async {
+    final serviceKey = 'AmazonTranslate';
+    final regionKey = 'Region';
+    final accessKeyIdKey = 'AccessKeyId';
+    final secretAccessKeyKey = 'SecretAccessKey';
+
+    final region = configuration.lookupNested('$serviceKey:$regionKey');
+
+    final accessKeyId = configuration.lookupNested('$serviceKey:$accessKeyIdKey');
+
+    final secretAccessKey = configuration.lookupNested('$serviceKey:$secretAccessKeyKey');
+
+    if (region == null) {
+      throw Exception('$serviceKey:$regionKey is not defined');
+    }
+
+    if (accessKeyId == null) {
+      throw Exception('$serviceKey:$accessKeyIdKey is not defined');
+    }
+
+    if (secretAccessKey == null) {
+      throw Exception('$serviceKey:$secretAccessKeyKey is not defined');
+    }
+
+    return AmazonTranslateService(
+      region: region,
+      accessKeyId: accessKeyId,
+      secretAccessKey: secretAccessKey,
       logger: logger,
     );
   }
