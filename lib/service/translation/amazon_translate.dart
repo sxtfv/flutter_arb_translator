@@ -2,19 +2,19 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:convert/convert.dart';
-import 'package:flutter_arb_translator/models/api_result.dart';
-import 'package:flutter_arb_translator/models/types.dart';
-import 'package:flutter_arb_translator/service/http/http_client.dart';
-import 'package:flutter_arb_translator/service/log/logger.dart';
 import 'package:intl/intl.dart';
 
+import '../../models/api_result.dart';
+import '../../models/types.dart';
+import '../http/http_client.dart';
+import '../log/logger.dart';
 import 'base.dart';
 
 /// Translator based on Amazon translate API
 /// Amazon Translate API Documentation:
 /// https://docs.aws.amazon.com/translate/latest/APIReference/welcome.html
 class AmazonTranslateService extends AbstractTranslationService with SupportsBulkTranslationToSingleTarget {
-  final AmazonTranslateClient client;
+  final _AmazonTranslateClient client;
   final Logger logger;
 
   /// [accessKeyID] - AWS Access Key Id, read mode here:
@@ -28,7 +28,7 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
     required String secretAccessKey,
     required String region,
     required this.logger,
-  }) : client = AmazonTranslateClient.translate(
+  }) : client = _AmazonTranslateClient.create(
           accessKeyId: accessKeyId,
           secretAccessKey: secretAccessKey,
           region: region,
@@ -58,7 +58,7 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
       return source;
     }
 
-    return apiResult.value!.translations.first.translatedText;
+    return apiResult.valueUnsafe.translations.first.translatedText;
   }
 
   /// Translates given texts to specified language
@@ -85,7 +85,7 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
       return sources;
     }
 
-    return apiResult.value!.translations.map((e) => e.translatedText).toList();
+    return apiResult.valueUnsafe.translations.map((e) => e.translatedText).toList();
   }
 }
 
@@ -98,25 +98,25 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
 /// [region] - AWS Service Endpoint Region, read more here:
 /// https://docs.aws.amazon.com/general/latest/gr/rande.html
 /// [service] - AWS Service Name, in this case it is "translate"
-class AmazonTranslateClient {
+class _AmazonTranslateClient {
   final String accessKeyId;
   final String secretAccessKey;
   final String region;
   final String service;
 
-  AmazonTranslateClient._({
+  _AmazonTranslateClient._({
     required this.accessKeyId,
     required this.secretAccessKey,
     required this.region,
     required this.service,
   });
 
-  factory AmazonTranslateClient.translate({
+  factory _AmazonTranslateClient.create({
     required String accessKeyId,
     required String secretAccessKey,
     required String region,
   }) =>
-      AmazonTranslateClient._(
+      _AmazonTranslateClient._(
         accessKeyId: accessKeyId,
         secretAccessKey: secretAccessKey,
         region: region,
@@ -141,11 +141,11 @@ class AmazonTranslateClient {
 
   String get algorithm => 'AWS4-HMAC-SHA256';
 
-  HttpClient buildClient(Logger logger, String message) {
+  HttpClient _buildClient(Logger logger, String message) {
     final String credentials = '$accessKeyId/$credentialScope';
-    final List<int> signatureKey = calculateSigningKey();
-    final String stringToSign = getStringToSign(message);
-    final String signature = calculateSignature(signatureKey, stringToSign);
+    final List<int> signatureKey = _calculateSigningKey();
+    final String stringToSign = _getStringToSign(message);
+    final String signature = _calculateSignature(signatureKey, stringToSign);
 
     final Map<String, String> headers = {
       'Content-Type': contentType,
@@ -161,15 +161,15 @@ class AmazonTranslateClient {
     );
   }
 
-  List<int> hash(List<int> value) {
+  List<int> _hash(List<int> value) {
     return sha256.convert(value).bytes;
   }
 
-  String hashPayload(String payload) {
-    return hex.encode(hash(utf8.encode(payload)));
+  String _hashPayload(String payload) {
+    return hex.encode(_hash(utf8.encode(payload)));
   }
 
-  List<int> sign(List<int> key, String messageToSign) {
+  List<int> _sign(List<int> key, String messageToSign) {
     final Hmac hmac = Hmac(sha256, key);
     final Digest digest = hmac.convert(utf8.encode(messageToSign));
 
@@ -178,19 +178,19 @@ class AmazonTranslateClient {
 
   /// Calculates signing key for request
   /// Read more: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html
-  List<int> calculateSigningKey() {
-    final List<int> dateSigned = sign(utf8.encode("AWS4$secretAccessKey"), date);
-    final List<int> regionSigned = sign(dateSigned, region);
-    final List<int> serviceSigned = sign(regionSigned, service);
-    final List<int> signingKey = sign(serviceSigned, 'aws4_request');
+  List<int> _calculateSigningKey() {
+    final List<int> dateSigned = _sign(utf8.encode("AWS4$secretAccessKey"), date);
+    final List<int> regionSigned = _sign(dateSigned, region);
+    final List<int> serviceSigned = _sign(regionSigned, service);
+    final List<int> signingKey = _sign(serviceSigned, 'aws4_request');
 
     return signingKey;
   }
 
-  String getCanonicalRequest(String message) {
+  String _getCanonicalRequest(String message) {
     final String canonicalUri = '/';
     final String canonicalQueryString = '';
-    final String hashedPayload = hashPayload(message);
+    final String hashedPayload = _hashPayload(message);
     final String canonicalHeaders = [
       "content-type:$contentType",
       "host:$host",
@@ -210,9 +210,9 @@ class AmazonTranslateClient {
   }
 
   /// Builds string to sign for HTTP request
-  String getStringToSign(String message) {
-    final String canonicalRequest = getCanonicalRequest(message);
-    final String hashedCanonicalRequest = hashPayload(canonicalRequest);
+  String _getStringToSign(String message) {
+    final String canonicalRequest = _getCanonicalRequest(message);
+    final String hashedCanonicalRequest = _hashPayload(canonicalRequest);
 
     final String stringToSign = [
       algorithm,
@@ -226,8 +226,8 @@ class AmazonTranslateClient {
 
   /// Creates signature for HTTP request
   /// https://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
-  String calculateSignature(List<int> signingKey, String stringToSign) {
-    final List<int> signature = sign(signingKey, stringToSign);
+  String _calculateSignature(List<int> signingKey, String stringToSign) {
+    final List<int> signature = _sign(signingKey, stringToSign);
     return hex.encode(signature);
   }
 
@@ -239,10 +239,8 @@ class AmazonTranslateClient {
   }) async {
     logger.info('Translate ${messages.length} texts from $sourceLanguageCode to $targetLanguageCode');
 
-    print("translating messages: " + messages.join("\n"));
-
     final List<String> escapedMessages = messages.map((message) => message.replaceAll('\n', '|')).toList();
-    final SourceData body = SourceData(
+    final _SourceData body = _SourceData(
       sourceLanguageCode: sourceLanguageCode,
       targetLanguageCode: targetLanguageCode,
       text: escapedMessages.join("\n"),
@@ -250,7 +248,7 @@ class AmazonTranslateClient {
 
     final String jsonBody = body.toJson;
 
-    return await buildClient(logger, jsonBody).post<_AmazonTranslation>(
+    return await _buildClient(logger, jsonBody).post<_AmazonTranslation>(
       path: '/',
       decoder: (response) => _decodeJson(logger, response.body),
       body: body.toMap,
@@ -264,12 +262,12 @@ class AmazonTranslateClient {
   }
 }
 
-class SourceData {
+class _SourceData {
   final String sourceLanguageCode;
   final String targetLanguageCode;
   final String text;
 
-  SourceData({
+  _SourceData({
     required this.sourceLanguageCode,
     required this.targetLanguageCode,
     required this.text,
@@ -287,28 +285,22 @@ class SourceData {
 }
 
 class _AmazonTranslation {
-  final List<AmazonTranslationItem> translations;
+  final List<_AmazonTranslationItem> translations;
 
   _AmazonTranslation(this.translations);
 
   factory _AmazonTranslation.fromJson(Map<String, dynamic> json) {
-    final String translationsJson = json['TranslatedText'] as String;
-    final translations = translationsJson
+    final String translation = json['TranslatedText'] as String;
+    final List<_AmazonTranslationItem> translations = translation
         .split("\n")
-        .map((x) => AmazonTranslationItem(x.replaceAll('|', '\n')))
+        .map((x) => _AmazonTranslationItem(x.replaceAll('|', '\n')))
         .toList();
     return _AmazonTranslation(translations);
   }
 }
 
-class AmazonTranslationItem {
+class _AmazonTranslationItem {
   final String translatedText;
 
-  AmazonTranslationItem(this.translatedText);
-
-  factory AmazonTranslationItem.fromJson(Map<String, dynamic> json) {
-    return AmazonTranslationItem(
-      json['TranslatedText'] as String,
-    );
-  }
+  _AmazonTranslationItem(this.translatedText);
 }
