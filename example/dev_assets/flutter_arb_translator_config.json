@@ -14,5 +14,10 @@
   "DeepL": {
     "Url": "https://api.deepl.com",
     "ApiKey": ""
+  },
+  "AmazonTranslate": {
+    "AccessKeyId": "",
+    "SecretAccessKey": "",
+    "Region": ""
   }
 }

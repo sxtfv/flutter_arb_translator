@@ -197,11 +197,17 @@ class TranslationServiceFactory {
     final accessKeyIdKey = 'AccessKeyId';
     final secretAccessKeyKey = 'SecretAccessKey';
 
-    final region = configuration.lookupNested('$serviceKey:$regionKey');
+    final region = configuration.lookupNested(
+      '$serviceKey:$regionKey',
+    );
 
-    final accessKeyId = configuration.lookupNested('$serviceKey:$accessKeyIdKey');
+    final accessKeyId = configuration.lookupNested(
+      '$serviceKey:$accessKeyIdKey',
+    );
 
-    final secretAccessKey = configuration.lookupNested('$serviceKey:$secretAccessKeyKey');
+    final secretAccessKey = configuration.lookupNested(
+      '$serviceKey:$secretAccessKeyKey',
+    );
 
     if (region == null) {
       throw Exception('$serviceKey:$regionKey is not defined');

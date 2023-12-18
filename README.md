@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.12
+  flutter_arb_translator: ^1.0.13
 ```
 
 # Example
@@ -104,10 +104,15 @@ In your project root directory create a `dev_assets` folder and create `flutter_
   "DeepL": {
     "Url": "https://api.deepl.com",
     "ApiKey": "<required>"
+  },
+  "AmazonTranslate": {
+    "AccessKeyId": "<required>",
+    "SecretAccessKey": "<required>",
+    "Region": "<required>"
   }
 }
 ```
-Optional JSON objects means that if you are going to use Azure translation service - only `AzureCognitiveServices` block is required in configuration file while YandexCloud, GoogleCloud and DeepL objects can be dismissed.
+Optional JSON objects means that if you are going to use Azure translation service - only `AzureCognitiveServices` block is required in configuration file while YandexCloud, GoogleCloud, AmazonTranslate and DeepL objects can be dismissed.
 
 2. Set up translation service configuration
 
@@ -162,6 +167,19 @@ DeepL translation service uses Api Key for authorization in DeepL API. You will 
 ```
 If you are going to use free DeepL API key update the `Url` value of `DeepL` configuration.
 
+- Amazon Translate
+
+Amazon Translate translation service uses access keys for authorization in Amazon API. See [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) how to create an access key. Once you got it, put it into `dev_assets/flutter_arb_translator_config.json` `AmazonTranslate` JSON object so it looks like:
+```json
+{
+  "AmazonTranslate": {
+    "AccessKeyId": "<required>",
+    "SecretAccessKey": "<required>",
+    "Region": "<required>"
+  }
+}
+```
+
 # Usage
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:
 ```shell
@@ -173,7 +191,7 @@ When command will complete, it will write `lib/l10n/app_es.arb` and `lib/l10n/ap
 Option          | Description
 ----------------| -------------
 dir             | (optional) Directory containing .arb files. By default it is set to `lib/l10n`
-service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`]
+service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`, `amazon`]
 from            | (required) Main language, ARB will be translated from this language to targets. Example usage: `--from en`
 to              | (required) List of languages to which ARB should be translated. At least 1 language required. Example usage: `--to es,pt` or `--to es --to pt`
 key             | (optional) If defined, only items with given keys will be translated. Example usage: `-k key1 -k key2`

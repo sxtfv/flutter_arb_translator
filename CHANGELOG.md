@@ -1,3 +1,7 @@
+## 1.0.13 (15th Dec 2023)
+
+- Add Amazon Translate support
+
 ## 1.0.12 (22nd Aug 2023)
 
 - Fix empty string processing when detect equal ARB file entries

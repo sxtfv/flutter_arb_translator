@@ -13,7 +13,8 @@ import 'base.dart';
 /// Translator based on Amazon translate API
 /// Amazon Translate API Documentation:
 /// https://docs.aws.amazon.com/translate/latest/APIReference/welcome.html
-class AmazonTranslateService extends AbstractTranslationService with SupportsBulkTranslationToSingleTarget {
+class AmazonTranslateService extends AbstractTranslationService
+    with SupportsBulkTranslationToSingleTarget {
   final _AmazonTranslateClient client;
   final Logger logger;
 
@@ -71,7 +72,8 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
     LanguageCode sourceLanguage,
     LanguageCode target,
   ) async {
-    logger.info('Translate ${sources.length} texts from $sourceLanguage to $target');
+    logger.info(
+        'Translate ${sources.length} texts from $sourceLanguage to $target');
 
     final apiResult = await client.translate(
       logger: logger,
@@ -85,7 +87,9 @@ class AmazonTranslateService extends AbstractTranslationService with SupportsBul
       return sources;
     }
 
-    return apiResult.valueUnsafe.translations.map((e) => e.translatedText).toList();
+    return apiResult.valueUnsafe.translations
+        .map((e) => e.translatedText)
+        .toList();
   }
 }
 
@@ -135,7 +139,8 @@ class _AmazonTranslateClient {
 
   String get signedHeaders => 'content-type;host;x-amz-date;x-amz-target';
 
-  String get amzDateTime => DateFormat("yyyyMMddTHHmm00'Z'").format(DateTime.now().toUtc());
+  String get amzDateTime =>
+      DateFormat("yyyyMMddTHHmm00'Z'").format(DateTime.now().toUtc());
 
   String get date => DateFormat("yyyyMMdd").format(DateTime.now().toUtc());
 
@@ -151,7 +156,8 @@ class _AmazonTranslateClient {
       'Content-Type': contentType,
       'X-Amz-Target': target,
       'X-Amz-Date': amzDateTime,
-      'Authorization': "$algorithm Credential=$credentials, SignedHeaders=$signedHeaders, Signature=$signature",
+      'Authorization':
+          "$algorithm Credential=$credentials, SignedHeaders=$signedHeaders, Signature=$signature",
     };
 
     return HttpClient(
@@ -179,7 +185,8 @@ class _AmazonTranslateClient {
   /// Calculates signing key for request
   /// Read more: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-signing.html
   List<int> _calculateSigningKey() {
-    final List<int> dateSigned = _sign(utf8.encode("AWS4$secretAccessKey"), date);
+    final List<int> dateSigned =
+        _sign(utf8.encode("AWS4$secretAccessKey"), date);
     final List<int> regionSigned = _sign(dateSigned, region);
     final List<int> serviceSigned = _sign(regionSigned, service);
     final List<int> signingKey = _sign(serviceSigned, 'aws4_request');
@@ -237,9 +244,11 @@ class _AmazonTranslateClient {
     required String sourceLanguageCode,
     required String targetLanguageCode,
   }) async {
-    logger.info('Translate ${messages.length} texts from $sourceLanguageCode to $targetLanguageCode');
+    logger.info(
+        'Translate ${messages.length} texts from $sourceLanguageCode to $targetLanguageCode');
 
-    final List<String> escapedMessages = messages.map((message) => message.replaceAll('\n', '|')).toList();
+    final List<String> escapedMessages =
+        messages.map((message) => message.replaceAll('\n', '|')).toList();
     final _SourceData body = _SourceData(
       sourceLanguageCode: sourceLanguageCode,
       targetLanguageCode: targetLanguageCode,
