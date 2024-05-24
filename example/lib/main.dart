@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Text(
                   locale.pick_language,
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(
                   height: 4,
@@ -143,9 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Text(
                   locale.make_sure_you_added_italian_and_deutsch_translations,
-                  style: Theme.of(context).textTheme.caption!.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         fontSize:
-                            Theme.of(context).textTheme.caption!.fontSize! *
+                            Theme.of(context).textTheme.bodyLarge!.fontSize! *
                                 0.85,
                       ),
                 ),
@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Text(
                       '$_counter',
-                      style: Theme.of(context).textTheme.headline4,
+                      style: Theme.of(context).textTheme.displaySmall,
                     ),
                   ],
                 ),

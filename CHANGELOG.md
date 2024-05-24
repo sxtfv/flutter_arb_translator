@@ -1,3 +1,7 @@
+## 1.0.14 (24th May 2024)
+
+- Update dependencies
+
 ## 1.0.13 (15th Dec 2023)
 
 - Add Amazon Translate support
