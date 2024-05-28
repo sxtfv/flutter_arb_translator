@@ -34,6 +34,7 @@ void main(List<String> arguments) async {
   final translationOptions = _createTranslationOptions(
     args,
   );
+  final prefix = args[_ArgsNames.prefix] as String;
 
   if (to.contains(from)) {
     to.remove(from);
@@ -66,7 +67,7 @@ void main(List<String> arguments) async {
     return;
   }
 
-  final sourceArbPath = path.join(absDir, 'app_$from.arb');
+  final sourceArbPath = path.join(absDir, '${prefix}_$from.arb');
   if (!File(sourceArbPath).existsSync()) {
     stdout.writeln('\x1B[33mFile $sourceArbPath does not exist.\x1B[0m');
     return;
@@ -126,7 +127,7 @@ void main(List<String> arguments) async {
   }
 
   final existFiles = to
-      .map((x) => MapEntry(x, path.join(absDir, 'app_$x.arb')))
+      .map((x) => MapEntry(x, path.join(absDir, '${prefix}_$x.arb')))
       .map(
         (x) => MapEntry(
           x.key,
@@ -193,7 +194,7 @@ void main(List<String> arguments) async {
       logger: Logger<ARBWriter>(logLevel),
     );
 
-    writer.writeToFile(path.join(absDir, 'app_$lang.arb'));
+    writer.writeToFile(path.join(absDir, '${prefix}_$lang.arb'));
   }
 }
 
@@ -271,6 +272,13 @@ args.ArgParser _initArgsParser() {
     defaultsTo: false,
   );
 
+  argsParser.addOption(
+    _ArgsNames.prefix,
+    abbr: 'p',
+    help: _ArgsHelp.prefix,
+    defaultsTo: 'app',
+  );
+
   return argsParser;
 }
 
@@ -316,6 +324,7 @@ class _ArgsNames {
   static const help = 'help';
   static const interactive = 'interactive';
   static const translateEqual = 'translate-equal';
+  static const prefix = 'prefix';
 }
 
 class _ArgsHelp {
@@ -338,4 +347,6 @@ class _ArgsHelp {
   static const translateEqual = 'If true and if ARB file with defined target '
       'language contains item with the same value as source ARB file it will '
       'be translated';
+  static const prefix = 'The file prefix to be use to find the file. '
+      'Default is app ';
 }
