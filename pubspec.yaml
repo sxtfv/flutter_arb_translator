@@ -1,6 +1,6 @@
 name: flutter_arb_translator
 description: A command line tool which simplifies translation of Flutter ARB files.
-version: 1.0.14
+version: 1.0.15
 homepage: https://github.com/sxtfv/flutter_arb_translator
 
 environment:

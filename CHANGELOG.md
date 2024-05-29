@@ -1,3 +1,7 @@
+## 1.0.15 (29th May 2024)
+
+- Add ability to specify custom ARB file prefix
+
 ## 1.0.14 (24th May 2024)
 
 - Update dependencies

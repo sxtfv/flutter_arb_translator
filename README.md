@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.14
+  flutter_arb_translator: ^1.0.15
 ```
 
 # Example
@@ -199,3 +199,4 @@ ignore          | (optional) If defined, items with given keys will be skipped f
 override        | (optional) If true and if ARB file with defined target language already exist all items will be replaced with new translation. Otherwise, they will be not modified. By default it is set to `false`
 interactive     | (optional) You will be prompted before applying translation. By default it is set to `false`
 translate-equal | (optional) If true and if ARB file with defined target language contains entry which is equal to source ARB file entry it will be translated. By default it is set to `false`
+prefix          | (optional) The file prefix to be used to find the file. By default it is set to `app`

@@ -347,6 +347,6 @@ class _ArgsHelp {
   static const translateEqual = 'If true and if ARB file with defined target '
       'language contains item with the same value as source ARB file it will '
       'be translated';
-  static const prefix = 'The file prefix to be use to find the file. '
-      'Default is app ';
+  static const prefix = 'The file prefix to be used to find the file. '
+      'Default is app';
 }
