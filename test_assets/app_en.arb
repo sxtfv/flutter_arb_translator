@@ -1,5 +1,6 @@
 {
   "@@locale" : "en",
+  "@@x-version": "1",
 
   "appName" : "Demo app",
 
