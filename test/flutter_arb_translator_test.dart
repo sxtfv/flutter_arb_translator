@@ -30,7 +30,14 @@ void main() {
       final arbContent = parser.parse(sampleFilePath);
       assert((arbContent.locale ?? '') == 'en');
 
-      assert(arbContent.items.length == 8);
+      assert(arbContent.items.length == 9);
+
+      assert(arbContent.ignoreKeys != null);
+      assert(arbContent.ignoreKeys!.length == 1);
+      assert(arbContent.ignoreKeys![0] == '@@x-version');
+      final xVersionItem = arbContent.findItemByKey('@@x-version')!;
+      assert(xVersionItem.value == '1');
+      assert(xVersionItem.annotation == null);
 
       final appNameItem = arbContent.findItemByKey('appName')!;
       assert(appNameItem.value == 'Demo app');
@@ -968,6 +975,148 @@ void main() {
         final italyHelloWorld3 =
             translationItaly.findItemByKey('hello_world_3');
         assert(italyHelloWorld3?.value == '[it] Hello world 3');
+      });
+    });
+
+    test('@@x- key should be ignored in translation (w/ options)', () async {
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: '@@x-version',
+            value: '1',
+            number: 0,
+          ),
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'Hello world 1',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'Hello world 2',
+            number: 2,
+          ),
+        ],
+        locale: 'en',
+        ignoreKeys: ['@@x-version'],
+      );
+
+      final arbSpanish = ARBContent([], locale: 'es');
+
+      final arbItaly = ARBContent([
+        ARBItem(
+          key: '@@x-version',
+          value: '2',
+          number: 0,
+        ),
+      ], locale: 'it');
+
+      final translationOptions =
+      TranslationOptions.createDefault().withIgnoreKeys(
+        ['hello_world_1'],
+      );
+
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['es', 'it'],
+          existFiles: {
+            'es': arbSpanish,
+            'it': arbItaly,
+          },
+          options: translationOptions,
+        );
+
+        final translationItaly = translation['it']!;
+        final translationSpanish = translation['es']!;
+
+        // hello_world_1 should be ignored
+        final spanishHelloWorld1 =
+        translationSpanish.findItemByKey('hello_world_1');
+        expect(spanishHelloWorld1, null);
+        final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
+        expect(italyHelloWorld1, null);
+
+        // hello_world_2 should be translated
+        final spanishHelloWorld2 =
+        translationSpanish.findItemByKey('hello_world_2');
+        expect(spanishHelloWorld2?.value, '[es] Hello world 2');
+        final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
+        expect(italyHelloWorld2?.value, '[it] Hello world 2');
+
+        // @x-version should be ignored in translation
+        final spanishVersion = translationSpanish.findItemByKey('@@x-version');
+        expect(spanishVersion, null);
+        final italyVersion = translationItaly.findItemByKey('@@x-version');
+        expect(italyVersion?.value, "2");
+      });
+    });
+
+    test('@@x- key should be ignored in translation (w/o options)', () async {
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: '@@x-version',
+            value: '1',
+            number: 0,
+          ),
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'Hello world 1',
+            number: 1,
+          ),
+        ],
+        locale: 'en',
+        ignoreKeys: ['@@x-version'],
+      );
+
+      final arbSpanish = ARBContent([], locale: 'es');
+
+      final arbItaly = ARBContent([
+        ARBItem(
+          key: '@@x-version',
+          value: '2',
+          number: 0,
+        ),
+      ], locale: 'it');
+
+      await runOnAllTranslators((svc) async {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: svc,
+          arb: arb,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['es', 'it'],
+          existFiles: {
+            'es': arbSpanish,
+            'it': arbItaly,
+          },
+        );
+
+        final translationItaly = translation['it']!;
+        final translationSpanish = translation['es']!;
+
+        // hello_world_1 should be translated
+        final spanishHelloWorld1 =
+        translationSpanish.findItemByKey('hello_world_1');
+        expect(spanishHelloWorld1?.value, '[es] Hello world 1');
+        final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
+        expect(italyHelloWorld1?.value, '[it] Hello world 1');
+
+        // @x-version should be ignored in translation
+        final spanishVersion = translationSpanish.findItemByKey('@@x-version');
+        expect(spanishVersion, null);
+        final italyVersion = translationItaly.findItemByKey('@@x-version');
+        expect(italyVersion?.value, "2");
       });
     });
 

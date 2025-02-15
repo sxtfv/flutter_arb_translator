@@ -16,6 +16,7 @@ import '../../models/translation_options.dart';
 class _PreparedTranslationData {
   final Map<ARBItemKey, Map<LanguageCode, ARBItemTranslated>> unmodified;
   final Map<ARBItemKey, List<LanguageCode>> candidates;
+
   const _PreparedTranslationData(this.unmodified, this.candidates);
 }
 
@@ -286,6 +287,14 @@ abstract class ARBTranslator {
   }) async {
     logger.trace('Started translation from $sourceLanguage to $languages');
     logger.trace('Total entries count: ${arb.items.length}');
+
+    // merge ignored keys from parameters and from arb-file if they exist
+    if(arb.ignoreKeys?.isNotEmpty == true) {
+      options ??= TranslationOptions.createDefault();
+      options = options.withIgnoreKeys(
+        [...arb.ignoreKeys!, ...options.ignoreKeys ?? []],
+      );
+    }
 
     final preparedTranslationData = _prepareTranslations(
       languages,

@@ -13,7 +13,10 @@ enum ARBItemSpecialDataType { plural, select }
 /// each item may contain annotation, plurals and selects
 /// [lineBreaks] - list of line breaks in the file
 /// used to rebuild file with similar layout
+/// [ignoreKeys] - list of keys that should be ignored in translation
+/// additionally to the ones specified in `TranslationOptions`
 class ARBContent {
+  final List<String>? ignoreKeys;
   final LanguageCode? locale;
   final List<ARBItem> items;
   final List<int> lineBreaks;
@@ -22,6 +25,7 @@ class ARBContent {
     this.items, {
     this.locale,
     this.lineBreaks = const [],
+    this.ignoreKeys,
   });
 
   factory ARBContent.empty() => ARBContent([]);
