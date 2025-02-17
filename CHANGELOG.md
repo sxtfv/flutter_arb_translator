@@ -1,3 +1,8 @@
+## 1.0.16 (17th Feb 2025)
+
+- Fix custom attributes processing
+
+
 ## 1.0.15 (29th May 2024)
 
 - Add ability to specify custom ARB file prefix
