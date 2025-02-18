@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import './l10n/gen_l10n/app_localizations.dart';
 
 /// lib/l10n already contains translations for Spanish and doesn't contain
 /// translations for Italian and Deutsch
@@ -27,13 +27,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _supportedLocales = const [
-    Locale('en', ''), // English, no country code
-    Locale('es', ''), // Spanish, no country code
-    Locale('it', ''), // Italian, no country code
-    Locale('de', ''), // Deutsch, no country code
-  ];
-
   String _selectedLocale = 'en';
 
   void _changeLocale(String newLocale) {
@@ -41,7 +34,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    if (!_supportedLocales.map((x) => x.languageCode).contains(newLocale)) {
+    if (!AppLocalizations.supportedLocales.map((x) => x.languageCode).contains(newLocale)) {
       return;
     }
 
@@ -58,11 +51,11 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: _supportedLocales,
+      supportedLocales: AppLocalizations.supportedLocales,
       locale: Locale(_selectedLocale),
       home: MyHomePage(
         title: 'Demo Home Page',
-        supportedLocales: _supportedLocales,
+        supportedLocales: AppLocalizations.supportedLocales,
         selectedLocale: _selectedLocale,
         selectLocale: _changeLocale,
       ),

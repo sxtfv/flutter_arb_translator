@@ -44,3 +44,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+/lib/l10n/gen_l10n/
