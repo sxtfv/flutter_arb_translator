@@ -1,7 +1,10 @@
+## 1.0.17 (18th Feb 2025)
+
+- Upgrade intl to 0.20.0
+
 ## 1.0.16 (17th Feb 2025)
 
 - Fix custom attributes processing
-
 
 ## 1.0.15 (29th May 2024)
 
