@@ -1,4 +1,3 @@
-import 'types.dart';
 import 'numbered_element.dart';
 import '../utils/extensions.dart';
 

@@ -15,7 +15,7 @@ import 'base.dart';
 /// https://docs.aws.amazon.com/translate/latest/APIReference/welcome.html
 class AmazonTranslateService extends AbstractTranslationService
     with SupportsBulkTranslationToSingleTarget {
-  final _AmazonTranslateClient client;
+  final _AmazonTranslateClient _client;
   final Logger logger;
 
   /// [accessKeyID] - AWS Access Key Id, read mode here:
@@ -29,7 +29,7 @@ class AmazonTranslateService extends AbstractTranslationService
     required String secretAccessKey,
     required String region,
     required this.logger,
-  }) : client = _AmazonTranslateClient.create(
+  }) : _client = _AmazonTranslateClient.create(
           accessKeyId: accessKeyId,
           secretAccessKey: secretAccessKey,
           region: region,
@@ -47,7 +47,7 @@ class AmazonTranslateService extends AbstractTranslationService
   ) async {
     logger.info('Translate "$source" from $sourceLanguage to $target');
 
-    final apiResult = await client.translate(
+    final apiResult = await _client.translate(
       logger: logger,
       messages: [source],
       sourceLanguageCode: sourceLanguage,
@@ -75,7 +75,7 @@ class AmazonTranslateService extends AbstractTranslationService
     logger.info(
         'Translate ${sources.length} texts from $sourceLanguage to $target');
 
-    final apiResult = await client.translate(
+    final apiResult = await _client.translate(
       logger: logger,
       messages: sources,
       sourceLanguageCode: sourceLanguage,
@@ -129,7 +129,7 @@ class _AmazonTranslateClient {
 
   String get host => "$service.$region.amazonaws.com";
 
-  String get endpoint => 'https://' + host;
+  String get endpoint => 'https://$host';
 
   String get target => 'AWSShineFrontendService_20170701.TranslateText';
 
