@@ -288,14 +288,6 @@ abstract class ARBTranslator {
     logger.trace('Started translation from $sourceLanguage to $languages');
     logger.trace('Total entries count: ${arb.items.length}');
 
-    // merge ignored keys from parameters and from arb-file if they exist
-    if(arb.ignoreKeys?.isNotEmpty == true) {
-      options ??= TranslationOptions.createDefault();
-      options = options.withIgnoreKeys(
-        [...arb.ignoreKeys!, ...options.ignoreKeys ?? []],
-      );
-    }
-
     final preparedTranslationData = _prepareTranslations(
       languages,
       existFiles,
@@ -478,10 +470,44 @@ abstract class ARBTranslator {
         }
       }
 
+      final attributes = _processAttributes(
+        existFiles.lookup(language)?.attributes ?? [],
+        language,
+      );
+
       result[language] = ARBContentTranslated(
         items,
-        locale: arb.locale == null ? null : language,
+        attributes: attributes,
         lineBreaks: arb.lineBreaks,
+      );
+    }
+
+    return result;
+  }
+
+  List<ARBAttribute> _processAttributes(
+    List<ARBAttribute> existFileAttributes,
+    LanguageCode language,
+  ) {
+    final result = [...existFileAttributes];
+
+    final existAttrIx = result.indexWhere((x) => x.key == localeAttributeKey);
+    if (existAttrIx >= 0 && result[existAttrIx].value == language) {
+      return result;
+    }
+
+    if (arb.locale == null) {
+      return result;
+    }
+
+    final arbLocaleAttribute = arb.findAttributeByKey(localeAttributeKey)!;
+    if (existAttrIx < 0) {
+      result.add(arbLocaleAttribute.cloneWith(
+        value: language,
+      ));
+    } else {
+      result[existAttrIx] = result[existAttrIx].cloneWith(
+        value: language,
       );
     }
 

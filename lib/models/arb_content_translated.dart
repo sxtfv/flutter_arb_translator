@@ -11,21 +11,30 @@ enum ARBItemModificationType {
 }
 
 /// ARB file content model with translations
-/// [locale] - optional in ARB file
 /// [items] - list of key/value pairs contained by this file
 /// each item may contain annotation, plurals and selects
+/// [attributes] - list of global and custom attributes in the file
 /// [lineBreaks] - list of line breaks in the file
 /// used to rebuild file with similar layout
 class ARBContentTranslated {
-  final LanguageCode? locale;
   final List<ARBItemTranslated> items;
+  final List<ARBAttribute> attributes;
   final List<int> lineBreaks;
 
   const ARBContentTranslated(
     this.items, {
-    this.locale,
+    this.attributes = const [],
     this.lineBreaks = const [],
   });
+
+  /// Value of the locale attribute if defined
+  String? get locale {
+    if (attributes.isEmpty) {
+      return null;
+    }
+
+    return findAttributeByKey(localeAttributeKey)?.value;
+  }
 
   /// Finds ARB item by given key
   ARBItemTranslated? findItemByKey(String key) =>
@@ -34,6 +43,10 @@ class ARBContentTranslated {
   /// Finds ARB item by numeric position in file
   ARBItemTranslated? findItemByNumber(int number) =>
       items.firstWhereOrNull((x) => x.number == number);
+
+  /// Finds ARB attribute by given key
+  ARBAttribute? findAttributeByKey(ARBAttributeKey key) =>
+      attributes.firstWhereOrNull((x) => x.key == key);
 }
 
 /// Translated ARB item model

@@ -239,7 +239,9 @@ class ARBTranslationApplier {
       result[target] = ARBContent(
         items,
         lineBreaks: lineBreaks,
-        locale: original.locale == null ? null : translatedARB?.locale,
+        attributes: translatedARB?.attributes ??
+            originalARB?.attributes ??
+            original.attributes,
       );
     }
 

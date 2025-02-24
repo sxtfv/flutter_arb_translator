@@ -2,5 +2,7 @@
   "pick_language": "Pick language",
   "you_have_pushed_the_button_this_many_times": "You have pushed the button this many times",
   "increment": "Increment",
-  "make_sure_you_added_italian_and_deutsch_translations": "Make sure you added Italian and Deutsch translations"
+  "make_sure_you_added_italian_and_deutsch_translations": "Make sure you added Italian and Deutsch translations",
+  "@@x-version": "1",
+  "@@locale": "en"
 }

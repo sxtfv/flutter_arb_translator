@@ -1,5 +1,6 @@
 {
   "pick_language": "Elegir idioma",
+  "@@locale": "es",
   "you_have_pushed_the_button_this_many_times": "Has presionado el botón tantas veces",
   "increment": "Incremento",
   "make_sure_you_added_italian_and_deutsch_translations": "Asegúrate de añadir traducciones al italiano y al alemán"

@@ -10,6 +10,8 @@
   "pageLoginPassword" : "Your password",
   "@pageLoginPassword" : {},
 
+  "@@x-test": "test custom attribute in the middle of file",
+
   "pageHomeTitle" : "Welcome {firstName}",
   "@pageHomeTitle" : {
     "description" : "Welcome message on the Home screen",

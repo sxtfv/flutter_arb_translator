@@ -1,34 +1,43 @@
 import 'types.dart';
+import 'numbered_element.dart';
 import '../utils/extensions.dart';
 
 typedef ARBItemKey = String;
+typedef ARBAttributeKey = String;
 typedef ARBItemPlaceholderKey = String;
 typedef ARBItemSpecialDataKey = String;
 
 enum ARBItemSpecialDataType { plural, select }
 
+const ARBAttributeKey localeAttributeKey = 'locale';
+
 /// ARB file content model
-/// [locale] - optional in ARB file
 /// [items] - list of key/value pairs contained by this file
 /// each item may contain annotation, plurals and selects
+/// [attributes] - list of global and custom attributes in the file
 /// [lineBreaks] - list of line breaks in the file
 /// used to rebuild file with similar layout
-/// [ignoreKeys] - list of keys that should be ignored in translation
-/// additionally to the ones specified in `TranslationOptions`
 class ARBContent {
-  final List<String>? ignoreKeys;
-  final LanguageCode? locale;
   final List<ARBItem> items;
+  final List<ARBAttribute> attributes;
   final List<int> lineBreaks;
 
   const ARBContent(
     this.items, {
-    this.locale,
+    this.attributes = const [],
     this.lineBreaks = const [],
-    this.ignoreKeys,
   });
 
   factory ARBContent.empty() => ARBContent([]);
+
+  /// Value of the locale attribute if defined
+  String? get locale {
+    if (attributes.isEmpty) {
+      return null;
+    }
+
+    return findAttributeByKey(localeAttributeKey)?.value;
+  }
 
   /// Finds ARB item by given key
   ARBItem? findItemByKey(ARBItemKey key) =>
@@ -37,6 +46,42 @@ class ARBContent {
   /// Finds ARB item by numeric position in the file
   ARBItem? findItemByNumber(int number) =>
       items.firstWhereOrNull((x) => x.number == number);
+
+  /// Finds ARB attribute by given key
+  ARBAttribute? findAttributeByKey(ARBAttributeKey key) =>
+      attributes.firstWhereOrNull((x) => x.key == key);
+}
+
+/// ARB attribute model
+/// Attribute starts with @@ and this class can be used for global
+/// and custom attributes
+/// See https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification#global-attributes
+/// Example:
+/// ---------------------------------------------------------------------------
+/// "@@locale": "en"
+/// or
+/// "@@x-version": "1.0"
+class ARBAttribute with NumberedElement {
+  @override
+  final int number;
+  final ARBAttributeKey key;
+  final String value;
+
+  const ARBAttribute({
+    required this.number,
+    required this.key,
+    required this.value,
+  });
+
+  ARBAttribute cloneWith({
+    String? value,
+  }) {
+    return ARBAttribute(
+      number: number,
+      key: key,
+      value: value ?? this.value,
+    );
+  }
 }
 
 /// ARB item model
@@ -56,7 +101,8 @@ class ARBContent {
 /// [plurals] - example doesn't contain plurals
 /// [selects] - example doesn't contain selects
 /// [annotation] - item annotation (optional) ("@pageHomeTitle" in example)
-class ARBItem {
+class ARBItem with NumberedElement {
+  @override
   final int number;
   final ARBItemKey key;
   final String value;

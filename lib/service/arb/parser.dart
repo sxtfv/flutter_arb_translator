@@ -44,10 +44,10 @@ class ARBParser {
         continue;
       }
 
-      if(fileLine.startsWith('@@')) {
-          lineNum++;
-          buff.writeln(fileLine);
-          continue;
+      if (fileLine.startsWith('@@')) {
+        lineNum++;
+        buff.writeln(fileLine);
+        continue;
       }
 
       if (fileLine.isEmpty) {
@@ -69,31 +69,22 @@ class ARBParser {
     logger.info('Found ${jsonData.length} json entries');
 
     Map<String, ARBItem> items = {};
+    Map<String, ARBAttribute> attributes = {};
     Map<String, dynamic> annotations = {};
 
-    String? locale;
-    List<String>? ignoreKeys;
     int i = 0;
     for (final json in jsonData.entries) {
       if (json.key.startsWith('@@')) {
-        if (json.key == '@@locale') {
-          logger.warning('Found locale entry ${json.value}');
-          locale = json.value;
-        } else {
-          logger.warning('Found x- entry ${json.value}');
-          (ignoreKeys ??= []).add(json.key);
-          final item = ARBItem(
-            number: i,
-            key: json.key,
-            value: json.value,
-          );
-          items[item.key] = item;
-          i++;
-        }
-
+        logger.warning('Found attribute ${json.key} - ${json.value}');
+        final attributeKey = json.key.substring(2, json.key.length);
+        attributes[attributeKey] = ARBAttribute(
+          number: i,
+          key: attributeKey,
+          value: json.value,
+        );
+        i++;
         continue;
       }
-
 
       if (json.key.contains('@')) {
         annotations[json.key.replaceAll('@', '')] = json.value;
@@ -161,9 +152,8 @@ class ARBParser {
 
     return ARBContent(
       items.values.toList(),
-      locale: locale,
+      attributes: attributes.values.toList(),
       lineBreaks: lineBreaks,
-      ignoreKeys: ignoreKeys,
     );
   }
 

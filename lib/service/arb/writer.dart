@@ -4,6 +4,7 @@ import 'dart:io';
 import '../log/logger.dart';
 
 import '../../models/arb_content.dart';
+import '../../models/numbered_element.dart';
 
 /// Responsible for writing [ARBContent] to a given file
 class ARBWriter {
@@ -27,19 +28,17 @@ class ARBWriter {
 
   String _encodeToJson() {
     final items = content.items.toList();
-    logger.info('Encode ${items.length} items');
+    final attributes = content.attributes.toList();
+    logger.info('Encode ${items.length + attributes.length} elements');
 
-    items.sort((x, y) => x.number.compareTo(y.number));
+    final List<NumberedElement> elements = [
+      ...content.items,
+      ...content.attributes,
+    ];
+    elements.sort((x, y) => x.number.compareTo(y.number));
+    final encodedTemps = elements.map((x) => _elementToJson(x)).toList();
 
-    final encodedItems = items.map((x) => _arbItemToJson(x)).toList();
-
-    if (content.locale != null) {
-      encodedItems.insert(0, {
-        '@@locale': content.locale!,
-      });
-    }
-
-    final merged = Map.fromEntries(encodedItems.expand((m) => m.entries));
+    final merged = Map.fromEntries(encodedTemps.expand((m) => m.entries));
 
     logger.info('Total json entries count: ${merged.length}');
 
@@ -62,6 +61,23 @@ class ARBWriter {
     }
 
     return lines.join('\n');
+  }
+
+  Map<String, dynamic> _elementToJson(NumberedElement element) {
+    if (element is ARBAttribute) {
+      return _arbAttributeToJson(element);
+    } else if (element is ARBItem) {
+      return _arbItemToJson(element);
+    }
+
+    logger.warning('Unsupported type at ${element.number}');
+    throw Exception('Unsupported type');
+  }
+
+  Map<String, dynamic> _arbAttributeToJson(ARBAttribute attribute) {
+    Map<String, dynamic> result = {};
+    result['@@${attribute.key}'] = attribute.value;
+    return result;
   }
 
   Map<String, dynamic> _arbItemToJson(ARBItem item) {

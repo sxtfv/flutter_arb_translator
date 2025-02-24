@@ -30,14 +30,20 @@ void main() {
       final arbContent = parser.parse(sampleFilePath);
       assert((arbContent.locale ?? '') == 'en');
 
-      assert(arbContent.items.length == 9);
+      assert(arbContent.items.length == 8);
 
-      assert(arbContent.ignoreKeys != null);
-      assert(arbContent.ignoreKeys!.length == 1);
-      assert(arbContent.ignoreKeys![0] == '@@x-version');
-      final xVersionItem = arbContent.findItemByKey('@@x-version')!;
-      assert(xVersionItem.value == '1');
-      assert(xVersionItem.annotation == null);
+      assert(arbContent.attributes.length == 3);
+      assert(arbContent.findAttributeByKey('x-version') != null);
+      final xVersionAttribute = arbContent.findAttributeByKey('x-version')!;
+      assert(xVersionAttribute.value == '1');
+      assert(arbContent.findAttributeByKey(localeAttributeKey) != null);
+      final localeAttribute =
+          arbContent.findAttributeByKey(localeAttributeKey)!;
+      assert(localeAttribute.value == 'en');
+      assert(arbContent.findAttributeByKey('x-test') != null);
+      final testAttribute = arbContent.findAttributeByKey('x-test')!;
+      assert(
+          testAttribute.value == 'test custom attribute in the middle of file');
 
       final appNameItem = arbContent.findItemByKey('appName')!;
       assert(appNameItem.value == 'Demo app');
@@ -415,13 +421,18 @@ void main() {
     }
 
     test('simple translation', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'hello_world',
-          value: 'Hello world',
-          number: 0,
-        ),
-      ], locale: 'en');
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world',
+            value: 'Hello world',
+            number: 1,
+          ),
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -445,23 +456,28 @@ void main() {
     });
 
     test('translate item with placeholder', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'greeting',
-          value: 'Hello {userName}!',
-          number: 0,
-          annotation: ARBItemAnnotation(
-            description: 'item description',
-            placeholders: [
-              ARBItemAnnotationPlaceholder(
-                key: 'userName',
-                type: 'String',
-                example: 'John Doe',
-              ),
-            ],
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'greeting',
+            value: 'Hello {userName}!',
+            number: 1,
+            annotation: ARBItemAnnotation(
+              description: 'item description',
+              placeholders: [
+                ARBItemAnnotationPlaceholder(
+                  key: 'userName',
+                  type: 'String',
+                  example: 'John Doe',
+                ),
+              ],
+            ),
           ),
-        ),
-      ], locale: 'en');
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -490,44 +506,49 @@ void main() {
     });
 
     test('translate item with plurals', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'pageHomeInboxCount',
-          value:
-              'Hello John Doe. {count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}',
-          number: 0,
-          plurals: [
-            ARBItemSpecialData(
-              key: 'count',
-              type: ARBItemSpecialDataType.plural,
-              options: [
-                ARBItemSpecialDataOption(
-                  'zero',
-                  'You have no new messages',
-                ),
-                ARBItemSpecialDataOption(
-                  'one',
-                  'You have 1 new message',
-                ),
-                ARBItemSpecialDataOption(
-                  'other',
-                  'You have {count} new messages',
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'pageHomeInboxCount',
+            value:
+                'Hello John Doe. {count, plural, zero{You have no new messages} one{You have 1 new message} other{You have {count} new messages}}',
+            number: 1,
+            plurals: [
+              ARBItemSpecialData(
+                key: 'count',
+                type: ARBItemSpecialDataType.plural,
+                options: [
+                  ARBItemSpecialDataOption(
+                    'zero',
+                    'You have no new messages',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'one',
+                    'You have 1 new message',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'other',
+                    'You have {count} new messages',
+                  ),
+                ],
+              ),
+            ],
+            annotation: ARBItemAnnotation(
+              description: 'New messages count on the Home screen',
+              placeholders: [
+                ARBItemAnnotationPlaceholder(
+                  key: 'count',
+                  type: 'int',
+                  example: '1',
                 ),
               ],
             ),
-          ],
-          annotation: ARBItemAnnotation(
-            description: 'New messages count on the Home screen',
-            placeholders: [
-              ARBItemAnnotationPlaceholder(
-                key: 'count',
-                type: 'int',
-                example: '1',
-              ),
-            ],
           ),
-        ),
-      ], locale: 'en');
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -591,33 +612,38 @@ void main() {
     });
 
     test('translate item with selects', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'pageHomeBirthday',
-          value:
-              '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}',
-          number: 0,
-          selects: [
-            ARBItemSpecialData(
-              key: 'sex',
-              type: ARBItemSpecialDataType.select,
-              options: [
-                ARBItemSpecialDataOption('male', 'His birthday'),
-                ARBItemSpecialDataOption('female', 'Her birthday'),
-                ARBItemSpecialDataOption('other', 'Their birthday'),
-              ],
-            ),
-          ],
-          annotation: ARBItemAnnotation(
-            description: 'Birthday message on the Home screen',
-            placeholders: [
-              ARBItemAnnotationPlaceholder(
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'pageHomeBirthday',
+            value:
+                '{sex, select, male{His birthday} female{Her birthday} other{Their birthday}}',
+            number: 1,
+            selects: [
+              ARBItemSpecialData(
                 key: 'sex',
+                type: ARBItemSpecialDataType.select,
+                options: [
+                  ARBItemSpecialDataOption('male', 'His birthday'),
+                  ARBItemSpecialDataOption('female', 'Her birthday'),
+                  ARBItemSpecialDataOption('other', 'Their birthday'),
+                ],
               ),
             ],
+            annotation: ARBItemAnnotation(
+              description: 'Birthday message on the Home screen',
+              placeholders: [
+                ARBItemAnnotationPlaceholder(
+                  key: 'sex',
+                ),
+              ],
+            ),
           ),
-        ),
-      ], locale: 'en');
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -657,76 +683,81 @@ void main() {
     });
 
     test('complex_translations_1', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'complexEntry',
-          value:
-              'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}',
-          number: 0,
-          annotation: ARBItemAnnotation(
-            description: 'complex entry description',
-            placeholders: [
-              ARBItemAnnotationPlaceholder(
-                key: 'firstName',
-                example: 'John Doe',
-                type: 'String',
-              ),
-              ARBItemAnnotationPlaceholder(
-                key: 'vehicleType',
-              ),
-              ARBItemAnnotationPlaceholder(
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'complexEntry',
+            value:
+                'Hello {firstName}, your car is {vehicleType, select, sedan{Sedan} cabriolet{Solid roof cabriolet} truck{16 wheel truck} other{Other}}. You have {count, plural, zero{no new messages} one{1 new message} other{{count} new messages}}',
+            number: 1,
+            annotation: ARBItemAnnotation(
+              description: 'complex entry description',
+              placeholders: [
+                ARBItemAnnotationPlaceholder(
+                  key: 'firstName',
+                  example: 'John Doe',
+                  type: 'String',
+                ),
+                ARBItemAnnotationPlaceholder(
+                  key: 'vehicleType',
+                ),
+                ARBItemAnnotationPlaceholder(
+                  key: 'count',
+                  example: '1',
+                  type: 'int',
+                ),
+              ],
+            ),
+            plurals: [
+              ARBItemSpecialData(
                 key: 'count',
-                example: '1',
-                type: 'int',
+                type: ARBItemSpecialDataType.plural,
+                options: [
+                  ARBItemSpecialDataOption(
+                    'zero',
+                    'no new messages',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'one',
+                    '1 new message',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'other',
+                    '{count} new messages',
+                  ),
+                ],
+              ),
+            ],
+            selects: [
+              ARBItemSpecialData(
+                key: 'vehicleType',
+                type: ARBItemSpecialDataType.select,
+                options: [
+                  ARBItemSpecialDataOption(
+                    'sedan',
+                    'Sedan',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'cabriolet',
+                    'Solid roof cabriolet',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'truck',
+                    '16 wheel truck',
+                  ),
+                  ARBItemSpecialDataOption(
+                    'other',
+                    'Other',
+                  ),
+                ],
               ),
             ],
           ),
-          plurals: [
-            ARBItemSpecialData(
-              key: 'count',
-              type: ARBItemSpecialDataType.plural,
-              options: [
-                ARBItemSpecialDataOption(
-                  'zero',
-                  'no new messages',
-                ),
-                ARBItemSpecialDataOption(
-                  'one',
-                  '1 new message',
-                ),
-                ARBItemSpecialDataOption(
-                  'other',
-                  '{count} new messages',
-                ),
-              ],
-            ),
-          ],
-          selects: [
-            ARBItemSpecialData(
-              key: 'vehicleType',
-              type: ARBItemSpecialDataType.select,
-              options: [
-                ARBItemSpecialDataOption(
-                  'sedan',
-                  'Sedan',
-                ),
-                ARBItemSpecialDataOption(
-                  'cabriolet',
-                  'Solid roof cabriolet',
-                ),
-                ARBItemSpecialDataOption(
-                  'truck',
-                  '16 wheel truck',
-                ),
-                ARBItemSpecialDataOption(
-                  'other',
-                  'Other',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ], locale: 'en');
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -790,49 +821,64 @@ void main() {
     });
 
     test('when translate specific key should ignore others', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'Hello world 1',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'Hello world 2',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'Hello world 3',
-          number: 1,
-        )
-      ], locale: 'en');
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'Hello world 1',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'Hello world 2',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'Hello world 3',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
-      final arbSpanish = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'es Hello world 1 original',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'es Hello world 2 original',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'es Hello world 3 original',
-          number: 2,
-        )
-      ], locale: 'es');
+      final arbSpanish = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'es Hello world 1 original',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'es Hello world 2 original',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'es Hello world 3 original',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'es'),
+        ],
+      );
 
-      final arbItalian = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'it Hello world 1 original',
-          number: 0,
-        ),
-      ], locale: 'it');
+      final arbItalian = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'it Hello world 1 original',
+            number: 1,
+          ),
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+        ],
+      );
 
       final translationOptions = TranslationOptions.createDefault().withKeys(
         ['hello_world_2'],
@@ -884,49 +930,64 @@ void main() {
     });
 
     test('when ignore specific key should translate others', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'Hello world 1',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'Hello world 2',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'Hello world 3',
-          number: 1,
-        )
-      ], locale: 'en');
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'Hello world 1',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'Hello world 2',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'Hello world 3',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
-      final arbSpanish = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'es Hello world 1 original',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'es Hello world 2 original',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'es Hello world 3 original',
-          number: 2,
-        )
-      ], locale: 'es');
+      final arbSpanish = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'es Hello world 1 original',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'es Hello world 2 original',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'es Hello world 3 original',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'es'),
+        ],
+      );
 
-      final arbItaly = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'it Hello world 1 original',
-          number: 0,
-        ),
-      ], locale: 'it');
+      final arbItaly = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'it Hello world 1 original',
+            number: 1,
+          ),
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+        ],
+      );
 
       final translationOptions =
           TranslationOptions.createDefault().withIgnoreKeys(
@@ -982,37 +1043,39 @@ void main() {
       final arb = ARBContent(
         [
           ARBItem(
-            key: '@@x-version',
-            value: '1',
-            number: 0,
-          ),
-          ARBItem(
             key: 'hello_world_1',
             value: 'Hello world 1',
-            number: 1,
+            number: 2,
           ),
           ARBItem(
             key: 'hello_world_2',
             value: 'Hello world 2',
-            number: 2,
+            number: 3,
           ),
         ],
-        locale: 'en',
-        ignoreKeys: ['@@x-version'],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+          ARBAttribute(number: 1, key: 'x-version', value: '1'),
+        ],
       );
 
-      final arbSpanish = ARBContent([], locale: 'es');
+      final arbSpanish = ARBContent(
+        [],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'es'),
+        ],
+      );
 
-      final arbItaly = ARBContent([
-        ARBItem(
-          key: '@@x-version',
-          value: '2',
-          number: 0,
-        ),
-      ], locale: 'it');
+      final arbItaly = ARBContent(
+        [],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+          ARBAttribute(number: 1, key: 'x-version', value: '2'),
+        ],
+      );
 
       final translationOptions =
-      TranslationOptions.createDefault().withIgnoreKeys(
+          TranslationOptions.createDefault().withIgnoreKeys(
         ['hello_world_1'],
       );
 
@@ -1038,22 +1101,25 @@ void main() {
 
         // hello_world_1 should be ignored
         final spanishHelloWorld1 =
-        translationSpanish.findItemByKey('hello_world_1');
+            translationSpanish.findItemByKey('hello_world_1');
         expect(spanishHelloWorld1, null);
-        final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
+        final italyHelloWorld1 =
+            translationItaly.findItemByKey('hello_world_1');
         expect(italyHelloWorld1, null);
 
         // hello_world_2 should be translated
         final spanishHelloWorld2 =
-        translationSpanish.findItemByKey('hello_world_2');
+            translationSpanish.findItemByKey('hello_world_2');
         expect(spanishHelloWorld2?.value, '[es] Hello world 2');
-        final italyHelloWorld2 = translationItaly.findItemByKey('hello_world_2');
+        final italyHelloWorld2 =
+            translationItaly.findItemByKey('hello_world_2');
         expect(italyHelloWorld2?.value, '[it] Hello world 2');
 
         // @x-version should be ignored in translation
-        final spanishVersion = translationSpanish.findItemByKey('@@x-version');
+        final spanishVersion =
+            translationSpanish.findAttributeByKey('x-version');
         expect(spanishVersion, null);
-        final italyVersion = translationItaly.findItemByKey('@@x-version');
+        final italyVersion = translationItaly.findAttributeByKey('x-version');
         expect(italyVersion?.value, "2");
       });
     });
@@ -1062,29 +1128,31 @@ void main() {
       final arb = ARBContent(
         [
           ARBItem(
-            key: '@@x-version',
-            value: '1',
-            number: 0,
-          ),
-          ARBItem(
             key: 'hello_world_1',
             value: 'Hello world 1',
-            number: 1,
+            number: 2,
           ),
         ],
-        locale: 'en',
-        ignoreKeys: ['@@x-version'],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+          ARBAttribute(number: 1, key: 'x-version', value: '1'),
+        ],
       );
 
-      final arbSpanish = ARBContent([], locale: 'es');
+      final arbSpanish = ARBContent(
+        [],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'es'),
+        ],
+      );
 
-      final arbItaly = ARBContent([
-        ARBItem(
-          key: '@@x-version',
-          value: '2',
-          number: 0,
-        ),
-      ], locale: 'it');
+      final arbItaly = ARBContent(
+        [],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+          ARBAttribute(number: 1, key: 'x-version', value: '2'),
+        ],
+      );
 
       await runOnAllTranslators((svc) async {
         final arbTranslator = ARBTranslator.create(
@@ -1107,63 +1175,80 @@ void main() {
 
         // hello_world_1 should be translated
         final spanishHelloWorld1 =
-        translationSpanish.findItemByKey('hello_world_1');
+            translationSpanish.findItemByKey('hello_world_1');
         expect(spanishHelloWorld1?.value, '[es] Hello world 1');
-        final italyHelloWorld1 = translationItaly.findItemByKey('hello_world_1');
+        final italyHelloWorld1 =
+            translationItaly.findItemByKey('hello_world_1');
         expect(italyHelloWorld1?.value, '[it] Hello world 1');
 
         // @x-version should be ignored in translation
-        final spanishVersion = translationSpanish.findItemByKey('@@x-version');
+        final spanishVersion =
+            translationSpanish.findAttributeByKey('x-version');
         expect(spanishVersion, null);
-        final italyVersion = translationItaly.findItemByKey('@@x-version');
+        final italyVersion = translationItaly.findAttributeByKey('x-version');
         expect(italyVersion?.value, "2");
       });
     });
 
     test('when should replace exist entries should work', () async {
-      final arb = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'Hello world 1',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'Hello world 2',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'Hello world 3',
-          number: 1,
-        )
-      ], locale: 'en');
+      final arb = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'Hello world 1',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'Hello world 2',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'Hello world 3',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ],
+      );
 
-      final arbSpanish = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'es Hello world 1 original',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'hello_world_2',
-          value: 'es Hello world 2 original',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'hello_world_3',
-          value: 'es Hello world 3 original',
-          number: 2,
-        )
-      ], locale: 'es');
+      final arbSpanish = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'es Hello world 1 original',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'hello_world_2',
+            value: 'es Hello world 2 original',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'hello_world_3',
+            value: 'es Hello world 3 original',
+            number: 3,
+          )
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'es'),
+        ],
+      );
 
-      final arbItaly = ARBContent([
-        ARBItem(
-          key: 'hello_world_1',
-          value: 'it Hello world 1 original',
-          number: 0,
-        ),
-      ], locale: 'it');
+      final arbItaly = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world_1',
+            value: 'it Hello world 1 original',
+            number: 1,
+          ),
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+        ],
+      );
 
       final translationOptions = TranslationOptions.createDefault().withFlags(
         overrideExist: true,
@@ -1218,18 +1303,24 @@ void main() {
   group('translation merger', () {
     final targets = ['ko', 'de'];
 
-    final original = ARBContent([
-      ARBItem(
-        key: 'hello_world',
-        value: 'Hello world',
-        number: 0,
-      ),
-      ARBItem(
-        key: 'translation',
-        value: 'Translation',
-        number: 1,
-      ),
-    ], locale: 'en');
+    final original = ARBContent(
+      [
+        ARBItem(
+          key: 'hello_world',
+          value: 'Hello world',
+          number: 1,
+        ),
+        ARBItem(
+          key: 'translation',
+          value: 'Translation',
+          number: 2,
+        ),
+      ],
+      attributes: [
+        ARBAttribute(number: 0, key: localeAttributeKey, value: 'en'),
+        ARBAttribute(number: 3, key: 'x-test', value: 'test attr'),
+      ],
+    );
 
     final originals = {
       'ko': ARBContent(
@@ -1237,15 +1328,18 @@ void main() {
           ARBItem(
             key: 'hello_world',
             value: '안녕하세요 세계',
-            number: 0,
+            number: 1,
           ),
           ARBItem(
             key: 'translation',
             value: '번역',
-            number: 1,
+            number: 2,
           ),
         ],
-        locale: 'ko',
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'ko'),
+          ARBAttribute(number: 3, key: 'x-num', value: '-1'),
+        ],
       ),
       'de': null,
     };
@@ -1262,7 +1356,10 @@ void main() {
                   annotation: null,
                 ))
             .toList(),
-        locale: 'ko',
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'ko'),
+          ARBAttribute(number: 3, key: 'x-num', value: '-1'),
+        ],
       ),
       'de': ARBContentTranslated(
         original.items
@@ -1275,7 +1372,9 @@ void main() {
                   annotation: null,
                 ))
             .toList(),
-        locale: 'de',
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'de'),
+        ],
       ),
     };
 
@@ -1410,23 +1509,28 @@ void main() {
     test('when one locale has more items they should keep unchanged', () {
       Map<String, ARBContent?> originalsCopy =
           originals.map((key, value) => MapEntry(key, value));
-      originalsCopy['it'] = ARBContent([
-        ARBItem(
-          key: 'hello_world',
-          value: 'Ciao mondo',
-          number: 0,
-        ),
-        ARBItem(
-          key: 'translation',
-          value: 'Traduzione',
-          number: 1,
-        ),
-        ARBItem(
-          key: 'third_item',
-          value: 'Terzo elemento',
-          number: 2,
-        ),
-      ], locale: 'it');
+      originalsCopy['it'] = ARBContent(
+        [
+          ARBItem(
+            key: 'hello_world',
+            value: 'Ciao mondo',
+            number: 1,
+          ),
+          ARBItem(
+            key: 'translation',
+            value: 'Traduzione',
+            number: 2,
+          ),
+          ARBItem(
+            key: 'third_item',
+            value: 'Terzo elemento',
+            number: 3,
+          ),
+        ],
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+        ],
+      );
 
       Map<String, ARBContentTranslated> translationsCopy =
           translations.map((key, value) => MapEntry(key, value));
@@ -1442,7 +1546,9 @@ void main() {
                   annotation: null,
                 ))
             .toList(),
-        locale: 'it',
+        attributes: [
+          ARBAttribute(number: 0, key: localeAttributeKey, value: 'it'),
+        ],
       );
 
       List<String> targetsCopy = targets.toList();
@@ -1486,6 +1592,55 @@ void main() {
       // this item doesn't exist in other ARBs and should be unchanged
       assert(
           resultItalian.findItemByKey('third_item')?.value == 'Terzo elemento');
+    });
+
+    test('should not add attributes and should keep attribute positions', () {
+      Map<String, ARBContent?> originalsCopy =
+          originals.map((key, value) => MapEntry(key, value));
+      Map<String, ARBContentTranslated> translationsCopy =
+          translations.map((key, value) => MapEntry(key, value));
+      List<String> targetsCopy = targets.toList();
+
+      final applier = ARBTranslationApplier(
+        original: original,
+        originalLocale: 'en',
+        translationTargets: targetsCopy,
+        translations: translationsCopy,
+        originals: originalsCopy,
+        logger: Logger<ARBTranslationApplier>(logLevel),
+      );
+
+      final applying = TranslationApplying(
+        TranslationApplyingType.applyAll,
+      );
+
+      while (applier.canMoveNext) {
+        applier.processCurrentChange(applying);
+        applier.moveNext();
+      }
+
+      final result = applier.getResults();
+      final resultKorean = result['ko']!;
+      final resultDeutsch = result['de']!;
+
+      // all ARBs have @@locale
+      // only 'en' has '@@x-test'
+      // only 'ko' has '@@x-num'
+      // '@@x-test' should not be added and '@@x-num' position should not change
+
+      expect(resultKorean.attributes.length, 2);
+      expect(resultDeutsch.attributes.length, 1);
+      expect(resultKorean.locale, 'ko');
+      expect(resultDeutsch.locale, 'de');
+      expect(resultKorean.findAttributeByKey(localeAttributeKey)!.number, 0);
+      expect(resultDeutsch.findAttributeByKey(localeAttributeKey)!.number, 0);
+
+      assert(resultKorean.findAttributeByKey('x-num') != null);
+      expect(resultKorean.findAttributeByKey('x-num')!.value, '-1');
+      expect(resultKorean.findAttributeByKey('x-num')!.number, 3);
+
+      assert(resultKorean.findAttributeByKey('x-test') == null);
+      assert(resultDeutsch.findAttributeByKey('x-test') == null);
     });
   });
 
