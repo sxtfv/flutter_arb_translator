@@ -1,3 +1,7 @@
+## 1.0.18 (24th Feb 2025)
+
+- Upgrade attribute processing & dependencies
+
 ## 1.0.17 (18th Feb 2025)
 
 - Upgrade intl to 0.20.0
