@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 import 'base.dart';
 import '../http/http_client.dart';
@@ -17,6 +18,7 @@ class GoogleCloudTranslationService extends AbstractTranslationService
   final String projectId;
   final Logger logger;
   final HttpClient _httpClient;
+  final HtmlUnescape _htmlUnescape = HtmlUnescape();
 
   /// For more details on arguments see Google Service Accounts documentation:
   /// https://cloud.google.com/iam/docs/service-accounts
@@ -48,7 +50,9 @@ class GoogleCloudTranslationService extends AbstractTranslationService
 
     final apiResult = await _httpClient.post<_GoogleCloudTranslation>(
       path: 'v3/projects/$projectId:translateText',
-      decoder: (response) => _decodeTranslationJson(response.body),
+      decoder: (response) => _decodeTranslationJson(
+        _htmlUnescape.convert(utf8.decode(response.bodyBytes)),
+      ),
       body: {
         'sourceLanguageCode': sourceLanguage,
         'targetLanguageCode': target,
@@ -81,7 +85,9 @@ class GoogleCloudTranslationService extends AbstractTranslationService
 
     final apiResult = await _httpClient.post<_GoogleCloudTranslation>(
       path: 'v3/projects/$projectId:translateText',
-      decoder: (response) => _decodeTranslationJson(response.body),
+      decoder: (response) => _decodeTranslationJson(
+        _htmlUnescape.convert(utf8.decode(response.bodyBytes)),
+      ),
       body: {
         'sourceLanguageCode': sourceLanguage,
         'targetLanguageCode': target,
