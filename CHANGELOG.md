@@ -1,3 +1,7 @@
+## 1.0.20 (3rd Apr 2025)
+
+- Fix Google Translate special chars Turkish
+
 ## 1.0.19 (24th Feb 2025)
 
 - Fix static analysis issues
