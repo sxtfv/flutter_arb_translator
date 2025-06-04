@@ -1,0 +1,8 @@
+{
+  "@@locale": "en",
+  "addTagTitle": "Add Tag",
+  "@addTagTitle": {
+    "description": "Add new tag title",
+    "type": "text"
+  }
+}

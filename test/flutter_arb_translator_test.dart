@@ -1790,5 +1790,69 @@ void main() {
         assert(resultDe.findItemByKey('emptyString')!.value.isEmpty);
       }
     });
+
+    // https://github.com/sxtfv/flutter_arb_translator/issues/16
+    test('issue #16 - Fails to update an entry with annotation', () async {
+      final sourceARB = path.absolute(
+          'test_assets/issue_16_fails_to_update_an_entry_with_annotation_en.arb');
+
+      const translationOptions = TranslationOptions();
+
+      final parser = ARBParser(
+        logger: Logger<ARBParser>(logLevel),
+      );
+
+      final sourceARBContent = parser.parse(sourceARB);
+      assert(sourceARBContent.items.length == 1);
+      final item = sourceARBContent.findItemByKey('addTagTitle');
+      assert(item != null);
+      assert(item!.annotation != null);
+      assert(item!.annotation!.description!.isNotEmpty);
+
+      for (final translator in allTranslators) {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: translator,
+          arb: sourceARBContent,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['de'],
+          existFiles: {},
+          options: translationOptions,
+        );
+
+        final applier = ARBTranslationApplier(
+          original: sourceARBContent,
+          originalLocale: 'en',
+          translationTargets: ['de'],
+          translations: translation,
+          originals: {'en': sourceARBContent},
+          logger: Logger<ARBTranslationApplier>(logLevel),
+        );
+
+        final applying = TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+
+        while (applier.canMoveNext) {
+          applier.processCurrentChange(applying);
+          applier.moveNext();
+        }
+
+        final result = applier.getResults();
+        final resultDe = result['de']!;
+
+        assert(resultDe.items.length == 1);
+
+        assert(resultDe.findItemByKey('addTagTitle')!.value == '[de] Add Tag');
+        assert(resultDe!
+            .findItemByKey('addTagTitle')!
+            .annotation!
+            .description!
+            .isNotEmpty);
+      }
+    });
   });
 }
