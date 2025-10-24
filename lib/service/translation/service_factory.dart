@@ -9,6 +9,7 @@ import 'yandex.dart';
 import 'google_cloud.dart';
 import 'deepl.dart';
 import 'amazon_translate.dart';
+import 'openai.dart';
 
 import '../log/logger.dart';
 
@@ -20,6 +21,7 @@ enum TranslationServiceType {
   googleCloud,
   deepL,
   amazonTranslate,
+  openai,
 }
 
 /// Creates and configures specific translation API services
@@ -55,6 +57,8 @@ class TranslationServiceFactory {
           return _createDeepLTranslator(configuration);
         case TranslationServiceType.amazonTranslate:
           return _createAmazonTranslateTranslator(configuration);
+        case TranslationServiceType.openai:
+          return _createOpenAITranslator(configuration);
       }
     } on Exception catch (error) {
       logger.error('Failed to initialize translator service', error);
@@ -225,6 +229,34 @@ class TranslationServiceFactory {
       region: region,
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
+      logger: logger,
+    );
+  }
+
+  OpenAITranslationService _createOpenAITranslator(
+    Map<String, dynamic> configuration,
+  ) {
+    final serviceKey = 'OpenAI';
+    final apiKeyKey = 'ApiKey';
+    final urlKey = 'Url';
+    final modelKey = 'Model';
+
+    final apiKey = configuration.lookupNested('$serviceKey:$apiKeyKey');
+    final url = configuration.lookupNested('$serviceKey:$urlKey');
+    final model = configuration.lookupNested('$serviceKey:$modelKey');
+
+    if (apiKey == null) {
+      throw Exception('$serviceKey$apiKeyKey is not defined');
+    }
+
+    if (url == null) {
+      throw Exception('$serviceKey:$urlKey is not defined');
+    }
+
+    return OpenAITranslationService(
+      baseUrl: url,
+      apiKey: apiKey,
+      model: model,
       logger: logger,
     );
   }

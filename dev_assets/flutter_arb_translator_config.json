@@ -19,5 +19,10 @@
     "AccessKeyId": "<required>",
     "SecretAccessKey": "<required>",
     "Region": "<required>"
+  },
+  "OpenAI": {
+    "Url": "https://api.openai.com",
+    "ApiKey": "<required>",
+    "Model": "<optional>"
   }
 }

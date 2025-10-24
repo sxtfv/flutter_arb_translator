@@ -109,6 +109,11 @@ In your project root directory create a `dev_assets` folder and create `flutter_
     "AccessKeyId": "<required>",
     "SecretAccessKey": "<required>",
     "Region": "<required>"
+  },
+  "OpenAI": {
+    "Url": "https://api.openai.com",
+    "ApiKey": "<required>",
+    "Model": "<optional>"
   }
 }
 ```
@@ -180,6 +185,18 @@ Amazon Translate translation service uses access keys for authorization in Amazo
 }
 ```
 
+- OpenAI
+
+OpenAI translation service uses API key authorization for authorization in OpenAI API. You can create a new OpenAI account [here](https://platform.openai.com/docs/overview) or use existing one. Once you got it, put API key into `dev_assets/flutter_arb_translator_config.json` `OpenAI` JSON object, so it looks like:
+```json
+{
+  "OpenAI": {
+    "Url": "https://api.openai.com",
+    "ApiKey": "************"
+  }
+}
+```
+Note, that you can also specify model which should be used for translation.
 # Usage
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:
 ```shell
@@ -191,7 +208,7 @@ When command will complete, it will write `lib/l10n/app_es.arb` and `lib/l10n/ap
 Option          | Description
 ----------------| -------------
 dir             | (optional) Directory containing .arb files. By default it is set to `lib/l10n`
-service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`, `amazon`]
+service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`, `amazon`, `openai`]
 from            | (required) Main language, ARB will be translated from this language to targets. Example usage: `--from en`
 to              | (required) List of languages to which ARB should be translated. At least 1 language required. Example usage: `--to es,pt` or `--to es --to pt`
 key             | (optional) If defined, only items with given keys will be translated. Example usage: `-k key1 -k key2`

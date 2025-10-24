@@ -19,5 +19,10 @@
     "AccessKeyId": "",
     "SecretAccessKey": "",
     "Region": ""
+  },
+  "OpenAI": {
+    "Url": "https://api.openai.com",
+    "ApiKey": "",
+    "Model": ""
   }
 }
