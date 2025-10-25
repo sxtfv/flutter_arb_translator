@@ -19,5 +19,8 @@
     "AccessKeyId": "",
     "SecretAccessKey": "",
     "Region": ""
+  },
+  "LibreTranslate": {
+    "Url": "http://localhost:5000"
   }
 }
