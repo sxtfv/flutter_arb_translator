@@ -1,3 +1,7 @@
+## 1.0.21 (26th Oct 2025)
+
+- Add LibreTranslate translation service
+
 ## 1.0.20 (3rd Apr 2025)
 
 - Fix Google Translate special chars Turkish
