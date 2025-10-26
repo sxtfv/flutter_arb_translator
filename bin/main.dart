@@ -44,7 +44,7 @@ void main(List<String> arguments) async {
 
   if (serviceName == null) {
     requiredArgsErrors.add('Please specify [service] option [azure, '
-        'yandex, google, deepl, amazon, openai]');
+        'yandex, google, deepl, amazon, libtrans, openai]');
   }
 
   if (from == null) {
@@ -109,6 +109,9 @@ void main(List<String> arguments) async {
       break;
     case 'amazon':
       serviceType = TranslationServiceType.amazonTranslate;
+      break;
+    case 'libtrans':
+      serviceType = TranslationServiceType.libreTranslate;
       break;
     case 'openai':
       serviceType = TranslationServiceType.openai;
@@ -219,6 +222,7 @@ args.ArgParser _initArgsParser() {
       'google',
       'deepl',
       'amazon',
+      'libtrans',
       'openai',
     ],
   );

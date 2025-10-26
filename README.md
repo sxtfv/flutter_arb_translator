@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.20
+  flutter_arb_translator: ^1.0.21
 ```
 
 # Example
@@ -110,6 +110,10 @@ In your project root directory create a `dev_assets` folder and create `flutter_
     "SecretAccessKey": "<required>",
     "Region": "<required>"
   },
+  "LibreTranslate": {
+    "Url": "http://localhost:5000",
+    "ApiKey": "<optional>"
+  },
   "OpenAI": {
     "Url": "https://api.openai.com",
     "ApiKey": "<required>",
@@ -185,6 +189,18 @@ Amazon Translate translation service uses access keys for authorization in Amazo
 }
 ```
 
+- LibreTranslate
+
+LibreTranslate translation service uses ApiKey authorization in LibreTranslate API. Api Key is optional because you can run self-hosted version of `libretranslate`. See [here](https://docs.libretranslate.com/) on how to set it up. Once it's configured, you need to put API URL and optional Api Key into `dev_assets/flutter_arb_translator_config.json` `LibreTranslate` JSON object so it looks like:
+```json
+{
+  "LibreTranslate": {
+    "Url": "<your_url>",
+    "ApiKey": "****"
+  }
+}
+```
+
 - OpenAI
 
 OpenAI translation service uses API key authorization for authorization in OpenAI API. You can create a new OpenAI account [here](https://platform.openai.com/docs/overview) or use existing one. Once you got it, put API key into `dev_assets/flutter_arb_translator_config.json` `OpenAI` JSON object, so it looks like:
@@ -197,6 +213,7 @@ OpenAI translation service uses API key authorization for authorization in OpenA
 }
 ```
 Note, that you can also specify model which should be used for translation.
+
 # Usage
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:
 ```shell
@@ -208,7 +225,7 @@ When command will complete, it will write `lib/l10n/app_es.arb` and `lib/l10n/ap
 Option          | Description
 ----------------| -------------
 dir             | (optional) Directory containing .arb files. By default it is set to `lib/l10n`
-service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`, `amazon`, `openai`]
+service         | (required) Translation service which will be used. [`azure`, `yandex`, `google`, `deepl`, `amazon`, `libtrans`, `openai`]
 from            | (required) Main language, ARB will be translated from this language to targets. Example usage: `--from en`
 to              | (required) List of languages to which ARB should be translated. At least 1 language required. Example usage: `--to es,pt` or `--to es --to pt`
 key             | (optional) If defined, only items with given keys will be translated. Example usage: `-k key1 -k key2`

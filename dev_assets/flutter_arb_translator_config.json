@@ -20,6 +20,10 @@
     "SecretAccessKey": "<required>",
     "Region": "<required>"
   },
+  "LibreTranslate": {
+    "Url": "http://localhost:5000",
+    "ApiKey": "<optional>"
+  },
   "OpenAI": {
     "Url": "https://api.openai.com",
     "ApiKey": "<required>",
