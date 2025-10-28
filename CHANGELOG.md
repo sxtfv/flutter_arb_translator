@@ -1,3 +1,7 @@
+## 1.0.22 (28th Oct 2025)
+
+- Add OpenAI translation service
+
 ## 1.0.21 (26th Oct 2025)
 
 - Add LibreTranslate translation service

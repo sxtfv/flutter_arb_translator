@@ -2,7 +2,7 @@ Add `flutter_arb_translator` as dev dependency to your pubspec.yaml
 
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.21
+  flutter_arb_translator: ^1.0.22
 ```
 
 Add `dev_assets/flutter_arb_translator_config.json` to the root of your project
