@@ -1,3 +1,7 @@
+## 1.0.23 (15th Nov 2025)
+
+- Add support for isCustomDateFormat
+
 ## 1.0.22 (28th Oct 2025)
 
 - Add OpenAI translation service
