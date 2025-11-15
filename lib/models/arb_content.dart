@@ -229,17 +229,20 @@ class ARBItemAnnotation {
 /// [type] - optional, "String" in example
 /// [example] - optional, "John Doe" in example
 /// [format] - optional, not included in example
+/// [isCustomDateFormat] - optional, applied only to DateTime type; not included in example
 class ARBItemAnnotationPlaceholder {
   final ARBItemPlaceholderKey key;
   final String? type;
   final String? example;
   final String? format;
+  final bool? isCustomDateFormat;
 
   const ARBItemAnnotationPlaceholder({
     required this.key,
     this.type,
     this.example,
     this.format,
+    this.isCustomDateFormat,
   });
 
   factory ARBItemAnnotationPlaceholder.fromJson(
@@ -251,6 +254,7 @@ class ARBItemAnnotationPlaceholder {
       type: json.lookup('type'),
       example: json.lookup('example'),
       format: json.lookup('format'),
+      isCustomDateFormat: json.lookup('isCustomDateFormat'),
     );
   }
 

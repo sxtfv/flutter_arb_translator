@@ -1790,5 +1790,116 @@ void main() {
         assert(resultDe.findItemByKey('emptyString')!.value.isEmpty);
       }
     });
+
+    // https://github.com/sxtfv/flutter_arb_translator/issues/24
+    test('issue #24 - isCustomDateFormat field ignored', () async {
+      final sampleFile =
+          path.absolute('test_assets/with_custom_data_format_en.arb');
+
+      final parser = ARBParser(
+        logger: Logger<ARBParser>(logLevel),
+      );
+
+      final arbContent = parser.parse(sampleFile);
+
+      assert(arbContent.items.length == 1);
+      final lastUpdateOrigItem = arbContent.findItemByKey('lastUpdate');
+      assert(lastUpdateOrigItem != null);
+      assert(lastUpdateOrigItem!.value == 'Last update: {date}');
+      assert(lastUpdateOrigItem!.annotation != null);
+      assert(lastUpdateOrigItem!.annotation!.description!.isNotEmpty);
+      assert(lastUpdateOrigItem!.annotation!.hasPlaceholders);
+      final datePlaceholderOrig =
+          lastUpdateOrigItem!.annotation!.findPlaceholderByKey('date');
+      assert(datePlaceholderOrig != null);
+      assert(datePlaceholderOrig!.type == 'DateTime');
+      assert(datePlaceholderOrig!.format == 'dd/MM/yyyy - HH:mm');
+      assert(datePlaceholderOrig!.isCustomDateFormat == true);
+
+      var translationOptions = TranslationOptions.createDefault();
+
+      for (final translator in allTranslators) {
+        final arbTranslator = ARBTranslator.create(
+          translationSvc: translator,
+          arb: arbContent,
+          sourceLanguage: 'en',
+          logger: Logger<ARBTranslator>(logLevel),
+        );
+
+        final translation = await arbTranslator.translate(
+          languages: ['fr'],
+          existFiles: {},
+          options: translationOptions,
+        );
+
+        final applier = ARBTranslationApplier(
+          original: arbContent,
+          originalLocale: 'en',
+          translationTargets: ['fr'],
+          translations: translation,
+          originals: {
+            'en': arbContent,
+          },
+          logger: Logger<ARBTranslationApplier>(logLevel),
+        );
+
+        final applying = TranslationApplying(
+          TranslationApplyingType.applyAll,
+        );
+
+        while (applier.canMoveNext) {
+          applier.processCurrentChange(applying);
+          applier.moveNext();
+        }
+
+        final result = applier.getResults();
+        final resultFr = result['fr']!;
+
+        assert(resultFr.items.length == 1);
+        final lastUpdateFrItem = resultFr.findItemByKey('lastUpdate');
+        assert(lastUpdateFrItem != null);
+        assert(lastUpdateFrItem!.value == '[fr] Last update: {date}');
+        assert(lastUpdateFrItem!.annotation != null);
+        assert(lastUpdateFrItem!.annotation!.description!.isNotEmpty);
+        assert(lastUpdateFrItem!.annotation!.hasPlaceholders);
+        final datePlaceholderFr =
+            lastUpdateFrItem!.annotation!.findPlaceholderByKey('date');
+        assert(datePlaceholderFr != null);
+        assert(datePlaceholderFr!.type == 'DateTime');
+        assert(datePlaceholderFr!.format == 'dd/MM/yyyy - HH:mm');
+        assert(datePlaceholderFr!.isCustomDateFormat == true);
+
+        final newFilePath =
+            path.absolute('test_assets/with_custom_data_format_fr.arb');
+        final f = File(newFilePath);
+        if (f.existsSync()) {
+          f.deleteSync();
+        }
+
+        final writer = ARBWriter(
+          resultFr,
+          logger: Logger<ARBWriter>(logLevel),
+        );
+        writer.writeToFile(newFilePath);
+
+        final arbContentReParsed = parser.parse(newFilePath);
+
+        assert(arbContentReParsed.items.length == 1);
+        final lastUpdateItemFr1 =
+            arbContentReParsed.findItemByKey('lastUpdate');
+        assert(lastUpdateItemFr1 != null);
+        assert(lastUpdateItemFr1!.value == '[fr] Last update: {date}');
+        assert(lastUpdateItemFr1!.annotation != null);
+        assert(lastUpdateItemFr1!.annotation!.description!.isNotEmpty);
+        assert(lastUpdateItemFr1!.annotation!.hasPlaceholders);
+        final datePlaceholderFr1 =
+            lastUpdateItemFr1!.annotation!.findPlaceholderByKey('date');
+        assert(datePlaceholderFr1 != null);
+        assert(datePlaceholderFr1!.type == 'DateTime');
+        assert(datePlaceholderFr1!.format == 'dd/MM/yyyy - HH:mm');
+        assert(datePlaceholderFr1!.isCustomDateFormat == true);
+        f.deleteSync();
+      }
+    });
   });
 }
