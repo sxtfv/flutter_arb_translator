@@ -1,3 +1,7 @@
+## 1.0.24 (22nd Nov 2025)
+
+- Improve annotation processing
+
 ## 1.0.23 (15th Nov 2025)
 
 - Add support for isCustomDateFormat
