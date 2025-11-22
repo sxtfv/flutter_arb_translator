@@ -55,7 +55,7 @@
       "vehicleType": {},
       "count": {
         "type": "int",
-        "example": "1"
+        "example": 1
       }
     }
   }

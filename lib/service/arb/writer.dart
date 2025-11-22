@@ -122,10 +122,11 @@ class ARBWriter {
       placeholderEntries['format'] = placeholder.format!;
     }
 
-    if (placeholder.type != null &&
-        placeholder.type == 'DateTime' &&
-        placeholder.isCustomDateFormat != null) {
-      placeholderEntries['isCustomDateFormat'] = placeholder.isCustomDateFormat!;
+    if (placeholder.otherAttributes != null) {
+      for (final otherAttrKey in placeholder.otherAttributes!.keys) {
+        placeholderEntries[otherAttrKey] =
+            placeholder.otherAttributes![otherAttrKey];
+      }
     }
 
     return {placeholder.key: placeholderEntries};

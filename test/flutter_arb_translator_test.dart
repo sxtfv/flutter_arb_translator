@@ -187,7 +187,7 @@ void main() {
       final complexItemCountPlaceholder =
           complexItem.findPlaceholderByKey('count')!;
       assert(complexItemCountPlaceholder.type == 'int');
-      assert(complexItemCountPlaceholder.example == '1');
+      assert(complexItemCountPlaceholder.example == 1);
       assert(complexItemCountPlaceholder.format == null);
       final complexItemVehicleTypeSelect =
           complexItem.findSelectByKey('vehicleType')!;
@@ -539,7 +539,7 @@ void main() {
                 ARBItemAnnotationPlaceholder(
                   key: 'count',
                   type: 'int',
-                  example: '1',
+                  example: 1,
                 ),
               ],
             ),
@@ -574,7 +574,7 @@ void main() {
         assert(itemDeutsch.hasPlurals);
         final countPlaceholderDeutsch =
             itemDeutsch.findPlaceholderByKey('count')!;
-        assert(countPlaceholderDeutsch.example == '1');
+        assert(countPlaceholderDeutsch.example == 1);
         assert(countPlaceholderDeutsch.type == 'int');
         final countPluralDeutsch = itemDeutsch.findPluralByKey('count')!;
         assert(countPluralDeutsch.fullText ==
@@ -597,7 +597,7 @@ void main() {
         assert(itemItalian.hasPlurals);
         final countPlaceholderItalian =
             itemItalian.findPlaceholderByKey('count')!;
-        assert(countPlaceholderItalian.example == '1');
+        assert(countPlaceholderItalian.example == 1);
         assert(countPlaceholderItalian.type == 'int');
         final countPluralItalian = itemItalian.findPluralByKey('count')!;
         assert(countPluralItalian.fullText ==
@@ -703,7 +703,7 @@ void main() {
                 ),
                 ARBItemAnnotationPlaceholder(
                   key: 'count',
-                  example: '1',
+                  example: 1,
                   type: 'int',
                 ),
               ],
@@ -795,7 +795,7 @@ void main() {
         final countPlaceholderNorwegian =
             itemNorwegian.findPlaceholderByKey('count')!;
         assert(countPlaceholderNorwegian.type == 'int');
-        assert(countPlaceholderNorwegian.example == '1');
+        assert(countPlaceholderNorwegian.example == 1);
         final vehicleTypeSelectNorwegian =
             itemNorwegian.findSelectByKey('vehicleType')!;
         assert(vehicleTypeSelectNorwegian.fullText ==
@@ -1814,7 +1814,8 @@ void main() {
       assert(datePlaceholderOrig != null);
       assert(datePlaceholderOrig!.type == 'DateTime');
       assert(datePlaceholderOrig!.format == 'dd/MM/yyyy - HH:mm');
-      assert(datePlaceholderOrig!.isCustomDateFormat == true);
+      assert(
+          datePlaceholderOrig!.otherAttributes!['isCustomDateFormat'] == true);
 
       var translationOptions = TranslationOptions.createDefault();
 
@@ -1867,7 +1868,8 @@ void main() {
         assert(datePlaceholderFr != null);
         assert(datePlaceholderFr!.type == 'DateTime');
         assert(datePlaceholderFr!.format == 'dd/MM/yyyy - HH:mm');
-        assert(datePlaceholderFr!.isCustomDateFormat == true);
+        assert(
+            datePlaceholderFr!.otherAttributes!['isCustomDateFormat'] == true);
 
         final newFilePath =
             path.absolute('test_assets/with_custom_data_format_fr.arb');
@@ -1897,7 +1899,8 @@ void main() {
         assert(datePlaceholderFr1 != null);
         assert(datePlaceholderFr1!.type == 'DateTime');
         assert(datePlaceholderFr1!.format == 'dd/MM/yyyy - HH:mm');
-        assert(datePlaceholderFr1!.isCustomDateFormat == true);
+        assert(
+            datePlaceholderFr1!.otherAttributes!['isCustomDateFormat'] == true);
         f.deleteSync();
       }
     });

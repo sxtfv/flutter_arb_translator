@@ -229,32 +229,41 @@ class ARBItemAnnotation {
 /// [type] - optional, "String" in example
 /// [example] - optional, "John Doe" in example
 /// [format] - optional, not included in example
-/// [isCustomDateFormat] - optional, applied only to DateTime type; not included in example
+/// [otherAttributes] - optional, contains other entries (for example isCustomDateFormat)
 class ARBItemAnnotationPlaceholder {
   final ARBItemPlaceholderKey key;
   final String? type;
-  final String? example;
+  final dynamic example;
   final String? format;
-  final bool? isCustomDateFormat;
+  final Map<String, dynamic>? otherAttributes;
 
   const ARBItemAnnotationPlaceholder({
     required this.key,
     this.type,
     this.example,
     this.format,
-    this.isCustomDateFormat,
+    this.otherAttributes,
   });
 
   factory ARBItemAnnotationPlaceholder.fromJson(
     ARBItemPlaceholderKey key,
     Map<String, dynamic> json,
   ) {
+    final otherAttributeKeys =
+        json.keys.where((x) => x != 'type' && x != 'example' && x != 'format');
+
+    final otherAttributes = otherAttributeKeys.isNotEmpty
+        ? otherAttributeKeys
+            .map((x) => MapEntry<String, dynamic>(x, json[x]))
+            .toMap()
+        : null;
+
     return ARBItemAnnotationPlaceholder(
       key: key,
       type: json.lookup('type'),
       example: json.lookup('example'),
       format: json.lookup('format'),
-      isCustomDateFormat: json.lookup('isCustomDateFormat'),
+      otherAttributes: otherAttributes,
     );
   }
 
