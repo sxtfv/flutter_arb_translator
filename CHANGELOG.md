@@ -1,3 +1,7 @@
+## 1.0.25 (23rd Nov 2025)
+
+- Support up-to-date dependencies
+
 ## 1.0.24 (22nd Nov 2025)
 
 - Improve annotation processing
