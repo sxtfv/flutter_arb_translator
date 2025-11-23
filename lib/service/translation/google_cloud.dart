@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypter_plus/encrypter_plus.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:html_unescape/html_unescape.dart';
 
