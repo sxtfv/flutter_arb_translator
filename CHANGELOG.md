@@ -1,3 +1,7 @@
+## 1.0.26 (22nd Dec 2025)
+
+- Fix DeepL translation
+
 ## 1.0.25 (23rd Nov 2025)
 
 - Support up-to-date dependencies
