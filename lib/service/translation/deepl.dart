@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'base.dart';
-
 import '../../models/types.dart';
-
 import '../http/http_client.dart';
 import '../log/logger.dart';
+import 'base.dart';
 
 /// Translator based on DeepL API
 /// DeepL translation API documentation:
@@ -121,7 +119,11 @@ class _DeepLTranslationItem {
 
   factory _DeepLTranslationItem.fromJson(Map<String, dynamic> json) {
     final text = json['text'] as String;
-    final utf8Text = utf8.decode(text.runes.toList());
-    return _DeepLTranslationItem(utf8Text);
+    try {
+      final utf8Text = utf8.decode(text.runes.toList());
+      return _DeepLTranslationItem(utf8Text);
+    } catch (e) {
+      return _DeepLTranslationItem(text);
+    }
   }
 }
