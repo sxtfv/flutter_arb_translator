@@ -122,7 +122,7 @@ class _DeepLTranslationItem {
     try {
       final utf8Text = utf8.decode(text.runes.toList());
       return _DeepLTranslationItem(utf8Text);
-    } catch (e) {
+    } catch (_) {
       return _DeepLTranslationItem(text);
     }
   }
