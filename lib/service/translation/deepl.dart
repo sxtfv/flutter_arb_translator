@@ -13,11 +13,13 @@ class DeepLTranslationService extends AbstractTranslationService
   final HttpClient _httpClient;
   final String apiKey;
   final Logger logger;
+  final String? glossaryId;
 
   DeepLTranslationService({
     required String url,
     required this.apiKey,
     required this.logger,
+    this.glossaryId,
   }) : _httpClient = HttpClient(
           baseUrl: url,
           logger: logger,
@@ -44,6 +46,7 @@ class DeepLTranslationService extends AbstractTranslationService
         'source_lang': sourceLanguage,
         'target_lang': target,
         'text': Uri.encodeComponent(source),
+        if (glossaryId != null) 'glossary_id': glossaryId!,
       },
       decoder: (response) => _decodeTranslationJson(response.body),
       body: {},
@@ -73,6 +76,9 @@ class DeepLTranslationService extends AbstractTranslationService
     List<MapEntry<String, String>> parameters = [];
     parameters.add(MapEntry('source_lang', sourceLanguage));
     parameters.add(MapEntry('target_lang', target));
+    if (glossaryId != null) {
+      parameters.add(MapEntry('glossary_id', glossaryId!));
+    }
     for (final source in sources) {
       parameters.add(MapEntry('text', Uri.encodeComponent(source)));
     }

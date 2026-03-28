@@ -177,10 +177,13 @@ class TranslationServiceFactory {
     final serviceKey = 'DeepL';
     final urlKey = 'Url';
     final apiKeyKey = 'ApiKey';
+    final glossaryIdKey = 'GlossaryId';
 
     final url = configuration.lookupNested('$serviceKey:$urlKey');
 
     final apiKey = configuration.lookupNested('$serviceKey:$apiKeyKey');
+
+    final glossaryId = configuration.lookupNested('$serviceKey:$glossaryIdKey');
 
     if (url == null) {
       throw Exception('$serviceKey:$urlKey is not defined');
@@ -194,6 +197,7 @@ class TranslationServiceFactory {
       url: url,
       apiKey: apiKey,
       logger: logger,
+      glossaryId: glossaryId,
     );
   }
 
