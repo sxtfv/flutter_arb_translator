@@ -1,3 +1,7 @@
+## 1.0.27 (30th Mar 2026)
+
+- DeepL support glossary
+
 ## 1.0.26 (22nd Dec 2025)
 
 - Fix DeepL translation

@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.26
+  flutter_arb_translator: ^1.0.27
 ```
 
 # Example
@@ -103,7 +103,8 @@ In your project root directory create a `dev_assets` folder and create `flutter_
   },
   "DeepL": {
     "Url": "https://api.deepl.com",
-    "ApiKey": "<required>"
+    "ApiKey": "<required>",
+    "GlossaryId": "<optional>"
   },
   "AmazonTranslate": {
     "AccessKeyId": "<required>",
@@ -170,11 +171,12 @@ DeepL translation service uses Api Key for authorization in DeepL API. You will 
 {
   "DeepL": {
     "Url": "https://api.deepl.com",
-    "ApiKey": "********-****-****-****-************"
+    "ApiKey": "********-****-****-****-************",
+    "GlossaryId": "****"
   }
 }
 ```
-If you are going to use free DeepL API key update the `Url` value of `DeepL` configuration.
+If you are going to use free DeepL API key update the `Url` value of `DeepL` configuration. You can also specify `GlossaryId` which will be passed to the API in order to prevent translation of specific terms (e.g., brand names).
 
 - Amazon Translate
 
