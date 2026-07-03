@@ -45,7 +45,7 @@ class OpenAITranslationService extends AbstractTranslationService
     LanguageCode sourceLanguage,
     LanguageCode target,
   ) async {
-    logger.info('Translate "$source" from $sourceLanguage to $target');
+    logger.info('Translate "$source" from the language code $sourceLanguage to the language code $target');
 
     final prompt =
         'Translate the following text from $sourceLanguage to $target: $source';
@@ -81,7 +81,7 @@ class OpenAITranslationService extends AbstractTranslationService
         .info('Translate "$source" from $sourceLanguage to multiple $targets');
 
     final prompt = '''
-Translate the following text from $sourceLanguage to these languages: ${targets.join(', ')}.
+Translate the following text from the language code $sourceLanguage to these language codes: ${targets.join(', ')}.
 Return only the translations, in the same order as the languages listed, one per line.
 Do not include the language names, colons, or any extra text—just the translations.
 Text: $source
@@ -141,7 +141,7 @@ Text: $source
         'Translate bulk "$sources" from $sourceLanguage to single $target');
 
     final prompt = '''
-Translate the following texts from $sourceLanguage to $target.
+Translate the following texts from the language code $sourceLanguage to the language code $target.
 Return only the translations, in the same order as the texts listed, one per line.
 Do not include the original texts, language names, colons, or any extra text—just the translations.
 Texts:
