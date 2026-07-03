@@ -1,3 +1,7 @@
+## 1.0.28 (3rd Jul 2026)
+
+- Fix OpenAI prompt
+
 ## 1.0.27 (30th Mar 2026)
 
 - DeepL support glossary
