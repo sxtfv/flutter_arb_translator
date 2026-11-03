@@ -11,7 +11,7 @@ A command line tool which simplifies translation of Flutter ARB files. You can s
 Add `flutter_arb_translator` to your `dev_dependencies`:
 ```yaml
 dev_dependencies:
-  flutter_arb_translator: ^1.0.28
+  flutter_arb_translator: ^1.0.29
 ```
 
 # Example
@@ -214,7 +214,19 @@ OpenAI translation service uses API key authorization for authorization in OpenA
   }
 }
 ```
-Note, that you can also specify model which should be used for translation.
+Note, that you can also specify model which should be used for translation as well as additional request parameters. For example:
+```json
+{
+  "OpenAI": {
+    "Url": "https://api.openai.com",
+    "ApiKey": "************",
+    "Model": "****",
+    "RequestParameters": {
+      "max_tokens": 1000
+    }
+  }
+}
+```
 
 # Usage
 Assuming you store ARB files in `lib/l10n` folder and want to translate `app_en.arb` into Spanish and Italian using Azure Cognitive Services translator. Run the following command:

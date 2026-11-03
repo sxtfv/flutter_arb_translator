@@ -26,6 +26,9 @@
   "OpenAI": {
     "Url": "https://api.openai.com",
     "ApiKey": "",
-    "Model": ""
+    "Model": "",
+    "RequestParameters": {
+      "max_tokens": 1000
+    }
   }
 }

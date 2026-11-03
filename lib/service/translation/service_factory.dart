@@ -270,10 +270,13 @@ class TranslationServiceFactory {
     final apiKeyKey = 'ApiKey';
     final urlKey = 'Url';
     final modelKey = 'Model';
+    final requestParametersKey = 'RequestParameters';
 
     final apiKey = configuration.lookupNested('$serviceKey:$apiKeyKey');
     final url = configuration.lookupNested('$serviceKey:$urlKey');
     final model = configuration.lookupNested('$serviceKey:$modelKey');
+    final requestParameters =
+        configuration.lookupNested('$serviceKey:$requestParametersKey');
 
     if (apiKey == null) {
       throw Exception('$serviceKey$apiKeyKey is not defined');
@@ -288,6 +291,7 @@ class TranslationServiceFactory {
       apiKey: apiKey,
       model: model,
       logger: logger,
+      requestParameters: requestParameters,
     );
   }
 }

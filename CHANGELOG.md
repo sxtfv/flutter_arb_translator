@@ -1,3 +1,7 @@
+## 1.0.29 (3rd Nov 2026)
+
+- OpenAI add request parameters
+
 ## 1.0.28 (3rd Jul 2026)
 
 - Fix OpenAI prompt

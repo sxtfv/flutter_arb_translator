@@ -22,12 +22,14 @@ class OpenAITranslationService extends AbstractTranslationService
   final HttpClient _httpClient;
   final Logger logger;
   final String model;
+  final Map<String, dynamic>? requestParameters;
 
   OpenAITranslationService({
     required String baseUrl,
     required String apiKey,
     required this.logger,
     String? model,
+    this.requestParameters,
   })  : model = (model == null || model.isEmpty) ? _defaultModel : model,
         _httpClient = HttpClient(
           baseUrl: baseUrl,
@@ -45,7 +47,8 @@ class OpenAITranslationService extends AbstractTranslationService
     LanguageCode sourceLanguage,
     LanguageCode target,
   ) async {
-    logger.info('Translate "$source" from the language code $sourceLanguage to the language code $target');
+    logger.info(
+        'Translate "$source" from the language code $sourceLanguage to the language code $target');
 
     final prompt =
         'Translate the following text from $sourceLanguage to $target: $source';
@@ -148,7 +151,7 @@ Texts:
 ${sources.join('\n')}
 ''';
 
-    final apiResult = await _queryCompletions(prompt, 2000);
+    final apiResult = await _queryCompletions(prompt);
 
     if (!apiResult.succeeded) {
       logger.warning('Translation failed');
@@ -182,27 +185,38 @@ ${sources.join('\n')}
       .toList();
 
   Future<ApiResult<_OpenAIChatCompletionResponse>> _queryCompletions(
-    String prompt, [
-    int maxTokens = 1000,
-  ]) =>
+    String prompt,
+  ) =>
       _httpClient.post<_OpenAIChatCompletionResponse>(
         path: 'v1/chat/completions',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: {
-          'model': model,
-          'messages': [
-            {
-              'role': 'user',
-              'content': prompt,
-            },
-          ],
-          'max_tokens': maxTokens,
-        },
+        body: _createRequestBody(prompt),
         decoder: (response) => _OpenAIChatCompletionResponse.fromJson(
             jsonDecode(utf8.decode(response.bodyBytes))),
       );
+
+  Map<String, dynamic> _createRequestBody(
+    String prompt,
+  ) {
+    final Map<String, dynamic> body = {
+      'model': model,
+      'messages': [
+        {
+          'role': 'user',
+          'content': prompt,
+        },
+      ],
+    };
+
+    if (requestParameters != null) {
+      logger.info('Creating request body with parameters: $requestParameters');
+      body.addAll(requestParameters!);
+    }
+
+    return body;
+  }
 }
 
 class _OpenAIChatCompletionResponse {
